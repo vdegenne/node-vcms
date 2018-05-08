@@ -1,14 +1,12 @@
 {
   "name": "vcms",
   "version": "0.1.0",
-  "description": "vcms",
+  "description": "a tiny node cms (express, objection/pgsql, express-session/redis, ...)",
   "author": "Valentin Degenne <vdegenne@gmail.com>",
   "license": "BSD-3-Clause",
   "main": "lib/vcms",
   "scripts": {
     "dev:serve": "NODE_ENV=dev node build/testapp",
-    "install:database": "psql -h localhost -U postgres -a -f sql/install.sql",
-    "uninstall:database": "psql -h localhost -U postgres -a -f sql/uninstall.sql",
     "clean": "rimraf lib",
     "build": "npm run clean && tsc",
     "test": "NODE_ENV=test npm run build && mocha",

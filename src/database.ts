@@ -1,8 +1,8 @@
 import * as Knex from 'knex';
-import {env} from './env';
+import {env} from './config';
 
 
-let dburl = `postgres://testdbuser:password@${env.PG_HOST}:5432/pizzajerry`;
+let dburl = `postgres://testdbuser:password@${env.DB_HOST}:5432/pizzajerry`;
 
 const database = Knex({client: 'pg', connection: dburl});
 

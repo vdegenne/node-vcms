@@ -11,7 +11,7 @@ app.use(express.urlencoded({extended: true}));
 
 (async () => {
   // session middleware before all
-  if (env.ENABLE_SESSION) {
+  if (env.SESSION_REQUIRED) {
     try {
       const {session} = require('../session');
       app.use(await session);
