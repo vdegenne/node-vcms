@@ -1,0 +1,7 @@
+.vscode
+node_modules/
+src/test
+test
+.gitignore
+.npmignore
+.travis.yml

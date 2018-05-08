@@ -1,0 +1,4 @@
+-c
+--ui tdd
+--require source-map-support/register
+build/test/*.test.js

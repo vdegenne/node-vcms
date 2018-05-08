@@ -1,0 +1,13 @@
+language: node_js
+node_js:
+  - node
+env:
+  - NODE_ENV=test
+services:
+  - postgresql
+addons:
+  postgresql: "9.6"
+before_script:
+  - npm run install:database
+after_script:
+  - npm run uninstall:database
