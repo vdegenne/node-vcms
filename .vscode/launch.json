@@ -24,7 +24,7 @@
       "name": "Mocha Tests",
       "program": "${workspaceFolder}/node_modules/.bin/_mocha",
       "outFiles": [
-        "${workspaceFolder}/build/**/*.js"
+        "${workspaceFolder}/lib/**/*.js"
       ],
       "sourceMaps": true
     }

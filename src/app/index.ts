@@ -58,7 +58,7 @@ export async function getApp(forceUpdate: boolean = false):
     }
 
     // ping
-    app.get('/ping', async (req, res) => res.end('pong\n'));
+    app.get('/ping', async (req, res) => res.send('pong\n'));
 
     // routers
     for (const base in routers) {

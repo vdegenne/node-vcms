@@ -78,7 +78,7 @@ const defaultOptions: VcmsOptions = {
 };
 
 
-let config: VcmsOptions = undefined;
+// let config: VcmsOptions = undefined;
 export let configFromFile: ConfigFileOptions = undefined;
 export let configFromCommandLine: CommandLineOptions = undefined;
 
@@ -87,15 +87,16 @@ export let configFromCommandLine: CommandLineOptions = undefined;
 export async function getConfig(
     forceUpdate: boolean = false,
     configFilepath?: string): Promise<VcmsOptions> {
-  if (!config || forceUpdate) {
-    await update(configFilepath);
-  }
-  return config;
+  /*   if (!config || forceUpdate) {
+      await update(configFilepath);
+    } */
+  return (await update(configFilepath));
 }
 
 
 export async function update(
-    configFilepath: string = process.cwd() + '/.vcms.yml'): Promise<void> {
+    configFilepath: string =
+        process.cwd() + '/.vcms.yml'): Promise<VcmsOptions> {
   const newconfig: VcmsWritableOptions = Object.assign({}, defaultOptions);
 
 
@@ -252,5 +253,6 @@ export async function update(
     newconfig.REDIS_HOST = configFromCommandLine['redis-host'];
   }
 
-  config = newconfig;
+  // config = newconfig;
+  return newconfig;
 }

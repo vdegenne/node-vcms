@@ -5,10 +5,10 @@ import * as Session from 'express-session';
 import {createClient, RedisClient} from 'redis';
 
 import {getConfig, VcmsOptions} from './config';
-import {getLogger} from './logging';
+import {Logger} from './logging';
 
 
-const logger = getLogger('session');
+const logger = new Logger('session');
 
 let _client: RedisClient = undefined;
 
