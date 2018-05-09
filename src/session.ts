@@ -1,10 +1,9 @@
 import * as connect from 'connect-redis';
 import {RequestHandler} from 'express';
-import {Request} from 'express';
 import * as Session from 'express-session';
 import {createClient, RedisClient} from 'redis';
 
-import {getConfig, VcmsOptions} from './config';
+import {getConfig} from './config';
 import {Logger} from './logging';
 
 

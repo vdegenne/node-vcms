@@ -3,8 +3,6 @@ import * as express from 'express';
 import {getConfig} from '../config';
 import {getInitSessionFunction, getSessionMiddleware} from '../session';
 
-import {userRouter} from './user.router';
-
 
 let app: express.Application = undefined;
 const routers: {[base: string]: express.Router} = {};
@@ -27,6 +25,8 @@ export async function getApp(forceUpdate: boolean = false):
 
     app.use(express.json());
     app.use(express.urlencoded({extended: true}));
+
+    app.use(express.static(process.cwd() + '/public'));
 
     const config = await getConfig();
     // use session before anything else
@@ -67,3 +67,7 @@ export async function getApp(forceUpdate: boolean = false):
 
   return app;
 }
+
+
+// make Router available in the vcms namespace
+export {Router} from 'express';

@@ -1,15 +1,14 @@
 {
   "name": "vcms",
   "version": "0.1.0",
-  "description": "a tiny node cms (express, objection/pgsql, express-session/redis, ...)",
+  "description": "a tiny node cms (express, objection, express-session/redis, and more)",
   "author": "Valentin Degenne <vdegenne@gmail.com>",
   "license": "BSD-3-Clause",
   "main": "lib/vcms",
   "scripts": {
-    "dev:serve": "NODE_ENV=dev node build/testapp",
     "clean": "rimraf lib",
-    "build": "npm run clean && tsc",
-    "test": "yarn build && NODE_ENV=test mocha",
+    "build": "yarn clean && tsc",
+    "test": "NODE_ENV=test mocha",
     "test:watch": "NODE_ENV=test tsc-then -- mocha",
     "format": "find src test -iname '*.ts' | xargs clang-format --style=file -i"
   },

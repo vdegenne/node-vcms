@@ -4,7 +4,7 @@ const loggers: Logger[] = [];
 
 export class Logger {
   private name!: string;
-  private config!: any;
+  // private config!: any;
 
   private displayInTests: boolean;
 

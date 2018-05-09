@@ -1,7 +1,7 @@
 import {createServer} from 'http';
 
 import {getApp} from './app';
-import {ConfigFileOptions, VcmsOptions} from './config';
+import {VcmsOptions} from './config';
 import {Logger} from './logging';
 import {getConfig} from './vcms';
 
