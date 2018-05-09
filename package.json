@@ -8,6 +8,7 @@
   "scripts": {
     "clean": "rimraf lib",
     "build": "yarn clean && tsc",
+    "pre-test": "psql -U postgres -a -f ./test/sql/install.sql",
     "test": "NODE_ENV=test mocha",
     "test:watch": "NODE_ENV=test tsc-then -- mocha",
     "format": "find src test -iname '*.ts' | xargs clang-format --style=file -i"

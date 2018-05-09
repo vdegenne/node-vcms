@@ -1,0 +1,2 @@
+DROP DATABASE IF EXISTS vcms_test;
+DROP ROLE IF EXISTS vcms_user;

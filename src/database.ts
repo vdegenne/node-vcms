@@ -1,10 +1,46 @@
 import * as Knex from 'knex';
 import {getConfig} from './config';
+import {Logger} from './logging';
 
-/* const config = await getConfig();
+const logger = new Logger('database');
 
-let dburl = `postgres://testdbuser:password@${config.DB_HOST}:5432/pizzajerry`;
+let database: Knex = undefined;
 
-const database = Knex({client: 'pg', connection: dburl});
+export async function getDatabase(): Promise<Knex> {
+  if (!database) {
+    logger.info('initialising database...');
+    let driver: string, knexDialect: string, url: string;
 
-export default database; */
+    const config = await getConfig();
+
+    // specific options
+    switch (config.DB_TYPE) {
+      case 'pg':
+        driver = 'postgres';
+        knexDialect = 'pg';
+    }
+
+
+    if (!config.DB_USER) {
+      const error = 'missing DB_USER property!');
+      logger.error(error);
+      throw new Error(error);
+    } else if (!config.DB_PASSWORD) {
+      const error = 'missing DB_PASSWORD property!';
+      logger.error(error);
+      throw new Error(error);
+    }
+
+
+    // construct the database url
+    url += `${driver}://`;                             // driver
+    url += `${config.DB_USER}:${config.DB_PASSWORD}`;  // ident
+    url += `@${config.DB_HOST}:${config.DB_PORT}`;     // host
+    url += `/${config.DB_NAME}`;                       // database
+
+
+    database = Knex({client: knexDialect, connection: url});
+  }
+
+  return database;
+}

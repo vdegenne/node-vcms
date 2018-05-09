@@ -12,16 +12,30 @@ const commandArgs: OptionDefinition[] = [
     name: 'enable-database',
     alias: 'd',
     description: 'Enable the database module',
-    type: Boolean,
-    defaultValue: false
+    type: Boolean
   },
+  {
+    name: 'db-type',
+    description: 'Type of the database (default: "pg")',
+    type: String
+  },
+  {
+    name: 'db-host',
+    description: 'Host address of the database (default: "localhost:5432")',
+    type: String
+  },
+  {
+    name: 'db-port',
+    description: 'Port of the databse to connect to (depends on db-host)'
+  },
+  {name: 'db-name', description: 'Name of the databse to connect to'},
+  {name: 'db-user', description: 'The name of the database user', type: String},
   {
     name: 'enable-session',
     alias: 's',
     description:
         'Enable the session module (use this if authentication is required)',
-    type: Boolean,
-    defaultValue: false
+    type: Boolean
   },
   {
     name: 'redis-host',
