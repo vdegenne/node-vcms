@@ -1,8 +1,10 @@
+
 import {expect} from 'chai';
 import {readFileSync} from 'fs';
 import {dirname} from 'path';
 
 import {getConfig} from '../config';
+
 
 const configFilepath = process.cwd() + '/fixtures/.vcms.yml';
 
@@ -36,6 +38,7 @@ suite('Config', () => {
 
   test('config file takes precedence over defaults', async () => {
     // default port is 8000, the port in the file is 123
+    console.log(process.env.NODE_ENV);
     const config = await run([], configFilepath);
     expect(config.PORT).to.equal(123);
   });

@@ -9,7 +9,7 @@
     "dev:serve": "NODE_ENV=dev node build/testapp",
     "clean": "rimraf lib",
     "build": "npm run clean && tsc",
-    "test": "NODE_ENV=test npm run build && mocha",
+    "test": "yarn build && NODE_ENV=test mocha",
     "test:watch": "NODE_ENV=test tsc-then -- mocha",
     "format": "find src test -iname '*.ts' | xargs clang-format --style=file -i"
   },

@@ -4,11 +4,10 @@ import {RequestHandler} from 'express';
 import {getApp} from '../app';
 import {getConfig, update as updateConfig} from '../config';
 import {displayAllLoggersInTests} from '../logging';
-// import {displayAllLoggersInTests} from '../logging';
 import {getRedisClient, getSessionMiddleware} from '../session';
 
 
-// const configFilepath = process.cwd() + '/fixtures/.vcms.yml';
+const configFilepath = process.cwd() + '/fixtures/.vcms.yml';
 
 
 suite('SessionMiddleware', () => {
