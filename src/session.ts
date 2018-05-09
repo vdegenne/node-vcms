@@ -1,6 +1,6 @@
 import * as connect from 'connect-redis';
 import {RequestHandler} from 'express';
-import {Express} from 'express';
+import {Request} from 'express';
 import * as Session from 'express-session';
 import {createClient, RedisClient} from 'redis';
 

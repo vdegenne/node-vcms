@@ -3,6 +3,7 @@ import {RequestHandler} from 'express';
 
 import {getApp} from '../app';
 import {getConfig, update as updateConfig} from '../config';
+import {displayAllLoggersInTests} from '../logging';
 // import {displayAllLoggersInTests} from '../logging';
 import {getRedisClient, getSessionMiddleware} from '../session';
 
@@ -54,4 +55,4 @@ suite('SessionMiddleware', () => {
 });
 
 
-// displayAllLoggersInTests();
+displayAllLoggersInTests(false);

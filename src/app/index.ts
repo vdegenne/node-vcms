@@ -6,7 +6,6 @@ import {getInitSessionFunction, getSessionMiddleware} from '../session';
 import {userRouter} from './user.router';
 
 
-
 let app: express.Application = undefined;
 const routers: {[base: string]: express.Router} = {};
 

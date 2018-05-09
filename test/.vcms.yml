@@ -1,7 +1,7 @@
 database: true
 session: true
 
-port: 123
+port: 3005
 
 test:
   # no config for test
@@ -9,7 +9,7 @@ dev:
   port: 3001
 
 prod:
-  port: 8080
+  # port: 8080
   pg-host: 1.2.3.4:5432
 
 
