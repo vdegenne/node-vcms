@@ -9,7 +9,8 @@
   "editor.tabSize": 2,
   "search.exclude": {
     "node_modules/": true,
-    "build/": true
+    "build/": true,
+    "lib/": true
   },
   "html.format.enable": false,
   "html.format.wrapLineLength": 60,

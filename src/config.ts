@@ -26,6 +26,7 @@ export interface CommandLineOptions {
   port?: number;
   'enable-database'?: boolean;
   'enable-session'?: boolean;
+  'redis-host'?: string;
 }
 
 
@@ -70,27 +71,31 @@ const defaultOptions: VcmsOptions = {
   PORT: 8000,
 
   DATABASE_REQUIRED: false,
-  DB_HOST: 'localhost',
+  DB_HOST: 'localhost:5432',
 
   SESSION_REQUIRED: false,
-  REDIS_HOST: 'localhost'
+  REDIS_HOST: 'localhost:6379'
 };
 
 
-export let config: VcmsOptions = defaultOptions;
+let config: VcmsOptions = undefined;
 export let configFromFile: ConfigFileOptions = undefined;
 export let configFromCommandLine: CommandLineOptions = undefined;
 
 
 
-export async function getConfig(configFilepath?: string): Promise<VcmsOptions> {
-  await update(configFilepath);
+export async function getConfig(
+    forceUpdate: boolean = false,
+    configFilepath?: string): Promise<VcmsOptions> {
+  if (!config || forceUpdate) {
+    await update(configFilepath);
+  }
   return config;
 }
 
 
-async function update(configFilepath: string = process.cwd() + '/.vcms.yml'):
-    Promise<void> {
+export async function update(
+    configFilepath: string = process.cwd() + '/.vcms.yml'): Promise<void> {
   const newconfig: VcmsWritableOptions = Object.assign({}, defaultOptions);
 
 
@@ -241,6 +246,10 @@ async function update(configFilepath: string = process.cwd() + '/.vcms.yml'):
     } else {
       newconfig.REDIS_HOST = process.env.REDIS_HOST;
     }
+  }
+  /* from command line */
+  if (configFromCommandLine && configFromCommandLine['redis-host']) {
+    newconfig.REDIS_HOST = configFromCommandLine['redis-host'];
   }
 
   config = newconfig;

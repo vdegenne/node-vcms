@@ -11,16 +11,23 @@ const commandArgs: OptionDefinition[] = [
   },
   {
     name: 'enable-database',
+    alias: 'd',
     description: 'Enable the database module',
     type: Boolean,
     defaultValue: false
   },
   {
     name: 'enable-session',
+    alias: 's',
     description:
         'Enable the session module (use this if authentication is required)',
     type: Boolean,
     defaultValue: false
+  },
+  {
+    name: 'redis-host',
+    description: 'Redis Host (e.g. localhost:6379)',
+    type: String
   }
 ];
 

@@ -6,7 +6,7 @@ import {getConfig} from '../config';
 
 const configFilepath = process.cwd() + '/fixtures/.vcms.yml';
 
-suite('Config', async () => {
+suite('Config', () => {
   const run = async (args: any, configFilepath?: string) => {
     // save originals
     const originalArgv = process.argv;
@@ -15,7 +15,7 @@ suite('Config', async () => {
     process.argv = ['node', 'app'].concat(args);
 
     // run update and get config
-    const config = getConfig(configFilepath);
+    const config = await getConfig(true, configFilepath);
 
     // get back to the original context
     process.argv = originalArgv;
