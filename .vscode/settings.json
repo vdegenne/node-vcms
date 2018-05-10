@@ -14,4 +14,5 @@
   },
   "html.format.enable": false,
   "html.format.wrapLineLength": 60,
+  "npm.enableScriptExplorer": true
 }

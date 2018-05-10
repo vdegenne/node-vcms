@@ -200,11 +200,12 @@ export async function update(
     }
 
     // if no DB_PORT was found, resolve based on the type
-    switch (newconfig.DB_TYPE) {
-      case 'pg':
-        newconfig.DB_PORT = 5432;
+    if (!newconfig.DB_PORT) {
+      switch (newconfig.DB_TYPE) {
+        case 'pg':
+          newconfig.DB_PORT = 5432;
+      }
     }
-
 
     /*===========
      = DB_NAME  =
@@ -411,6 +412,5 @@ export interface ConfigFileOptionsBase {
 export interface CommandLineOptions {
   port?: number;
   'enable-database'?: boolean;
-  'enable-session'?: boolean;
   'redis-host'?: string;
 }

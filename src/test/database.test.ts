@@ -1,9 +1,18 @@
 import {expect} from 'chai';
 
-import {update as updateConfig} from '../config';
+import {getConfig, update as updateConfig} from '../config';
 import {getDatabase} from '../database';
+import {displayAllLoggersInTests} from '../logging';
+
+
 
 suite('Database', async () => {
+  suiteSetup(() => {
+    displayAllLoggersInTests();
+  });
+  suiteTeardown(() => {
+    displayAllLoggersInTests(false);
+  });
   teardown(() => {
     run([]);  // force defaults
   });
@@ -23,13 +32,10 @@ suite('Database', async () => {
   };
 
 
-  test('it connects and returns a Knex object', async () => {
-    await run(['--db-user'])
-    const database = await getDatabase();
-    try {
-      return database.raw('select 1+1');
-    } catch (e) {
-      throw new Error('no connection');
-    }
-  });
+  test(
+      'it connects to the local database and returns a Knex object',
+      async () => {
+        await run([], process.cwd() + '/fixtures/.vcms-db.yml');
+        const database = await getDatabase();
+      });
 });
