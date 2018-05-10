@@ -2,11 +2,20 @@ import {expect} from 'chai';
 import {dirname} from 'path';
 
 import {getConfig} from '../config';
+import {displayAllLoggers} from '../logging';
 
 
 const configFilepath = process.cwd() + '/fixtures/.vcms.yml';
 
 suite('Config', () => {
+  const debug = () => {
+    displayAllLoggers();
+  };
+
+  suiteTeardown(() => {
+    displayAllLoggers(false);
+  });
+
   const run = async (args: any, configFilepath?: string) => {
     // save originals
     const originalArgv = process.argv;
@@ -15,7 +24,7 @@ suite('Config', () => {
     process.argv = ['node', 'app'].concat(args);
 
     // run update and get config
-    const config = await getConfig(true, configFilepath);
+    const config = await getConfig(configFilepath);
 
     // get back to the original context
     process.argv = originalArgv;
@@ -35,9 +44,9 @@ suite('Config', () => {
   });
 
   test('config file takes precedence over defaults', async () => {
-    // default port is 8000, the port in the file is 123
+    // default port is 8000, the port in the file is 3001 for dev
     const config = await run([], configFilepath);
-    expect(config.PORT).to.equal(123);
+    expect(config.PORT).to.equal(3001);
   });
 
 
@@ -51,8 +60,7 @@ suite('Config', () => {
     const config = await run([], configFilepath);
     expect(config.PORT).to.equal(321);
 
-    if (!originalEnvPort)
-      delete process.env.PORT;  // restore context
+    if (!originalEnvPort) delete process.env.PORT;  // restore context
   });
 
 
@@ -108,27 +116,24 @@ suite('Config', () => {
     expect(config.PORT).to.equal(8080);
 
     // restore context
-    if (originalNodeEnv)
-      process.env.NODE_ENV = originalNodeEnv;
+    if (originalNodeEnv) process.env.NODE_ENV = originalNodeEnv;
   });
 
 
+  let TITLE =
+      'process.env.NODE_ENV influenced configuration takes precedence over node-env influenced configuration';
+  test(TITLE, async () => {
+    // make sure NODE_ENV influences the configuration
+    const originalNodeEnv = process.env.NODE_ENV;  // save context
+    process.env.NODE_ENV = 'prod';                 // change context
 
-  test(
-      'process.env.NODE_ENV influenced configuration takes precedence over node-env influenced configuration',
-      async () => {
-        // make sure NODE_ENV influences the configuration
-        const originalNodeEnv = process.env.NODE_ENV;  // save context
-        process.env.NODE_ENV = 'prod';                 // change context
 
+    // the default file has a "dev" node-env with port 3001
+    // but NODE_ENV is "prod" and "prod" node-env has 8080 port
+    let config = await run([], configFilepath);
+    expect(config.PORT).to.equal(8080);
 
-        // the default file has a "dev" node-env with port 3001
-        // but NODE_ENV is "prod" and "prod" node-env has 8080 port
-        let config = await run([], configFilepath);
-        expect(config.PORT).to.equal(8080);
-
-        // restore context
-        if (originalNodeEnv)
-          process.env.NODE_ENV = originalNodeEnv;
-      });
+    // restore context
+    if (originalNodeEnv) process.env.NODE_ENV = originalNodeEnv;
+  });
 });

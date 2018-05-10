@@ -1,11 +1,13 @@
 import * as express from 'express';
 
-import {getConfig} from '../config';
-import {getInitSessionFunction, getSessionMiddleware} from '../session';
+import {getConfig, VcmsOptions} from '../config';
+import {Logger} from '../logging';
+import {getInitSessionFunction, getSession} from '../session';
 
 
-let app: express.Application = undefined;
-const routers: {[base: string]: express.Router} = {};
+const logger = new Logger('app');
+
+/* const routers: {[base: string]: express.Router} = {};
 
 
 export async function registerRouter(
@@ -14,56 +16,47 @@ export async function registerRouter(
   if (app) {
     app.use(base, router);
   }
-}
+} */
 
 
-
-export async function getApp(forceUpdate: boolean = false):
+export async function getApp(config: VcmsOptions):
     Promise<express.Application> {
-  if (!app || forceUpdate) {
-    app = express();
+  const app = express();
 
-    app.use(express.json());
-    app.use(express.urlencoded({extended: true}));
+  app.use(express.json());
+  app.use(express.urlencoded({extended: true}));
 
-    app.use(express.static(process.cwd() + '/public'));
-
-    const config = await getConfig();
-    // use session before anything else
-    if (config.SESSION_REQUIRED) {
-      try {
-        const sessionMiddleware = await getSessionMiddleware();
-        const initSessionFunction = await getInitSessionFunction();
-        app.use(sessionMiddleware);
-
-        // Session Initialisation Function
-        if (initSessionFunction) {
-          app.use(async (req, res, next) => {
-            await initSessionFunction(req.session);
-            next();
-          });
-        }
-
-      } catch (e) {
-        console.error(e.message);
-        process.exit(1);
-      }
-    }
+  app.use(express.static(process.cwd() + '/public'));
 
 
-    // morgan
-    if (config.NODE_ENV !== 'test') {
-      app.use(require('morgan')('dev'));
-    }
+  // session, before anything else
+  if (config.SESSION_REQUIRED) {
+    const session = await getSession(config);
+    const initSessionFunction = await getInitSessionFunction();
+    app.use(session.middleware);
 
-    // ping
-    app.get('/ping', async (req, res) => res.send('pong\n'));
-
-    // routers
-    for (const base in routers) {
-      app.use(base, routers[base]);
+    // Session Initialisation Function
+    if (initSessionFunction) {
+      app.use(async (req, res, next) => {
+        await initSessionFunction(req.session);
+        next();
+      });
     }
   }
+
+
+  // morgan
+  if (config.NODE_ENV !== 'test') {
+    app.use(require('morgan')('dev'));
+  }
+
+  // ping
+  app.get('/ping', async (req, res) => res.send('pong\n'));
+
+  // routers
+  /*   for (const base in routers) {
+      app.use(base, routers[base]);
+    } */
 
   return app;
 }

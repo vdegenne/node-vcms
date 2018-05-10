@@ -1,7 +1,11 @@
 .vscode
+fixtures
 node_modules/
 src/test
 test
+.clang-format
 .gitignore
 .npmignore
 .travis.yml
+yarn-error.log
+yarn.lock

@@ -3,56 +3,29 @@ import {RequestHandler} from 'express';
 import * as Session from 'express-session';
 import {createClient, RedisClient} from 'redis';
 
-import {getConfig} from './config';
+import {getConfig, VcmsOptions} from './config';
 import {Logger} from './logging';
-
 
 const logger = new Logger('session');
 
-let _client: RedisClient = undefined;
-
-
-export async function getRedisClient(): Promise<RedisClient> {
-  return new Promise<RedisClient>(async (resolve, reject) => {
-    if (!_client) {
-      const config = await getConfig();
-
-      const redisHost = config.REDIS_HOST.split(':');
-      const client = createClient({
-        host: redisHost[0],
-        port: redisHost[1] ? parseInt(redisHost[1]) : 6379
-      });
-      client.on('error', (e) => {
-        client.quit();
-        reject(e);
-      });
-      client.on('end', () => {
-        logger.info('redis client has closed');
-      });
-      client.on('ready', () => {
-        _client = client;
-        resolve(client);
-      });
-    } else {
-      resolve(_client);
-    }
-  });
+export interface Session {
+  redis: RedisClient, middleware: RequestHandler
 }
 
-export async function getSessionMiddleware(): Promise<RequestHandler> {
-  const config = await getConfig();
+
+export async function getSession(config: VcmsOptions): Promise<Session> {
   const RedisStore = connect(Session);
 
-  let client: RedisClient;
+  let redis: RedisClient;
   try {
-    client = await getRedisClient();
+    redis = await getRedisClient(config);
   } catch (e) {
     throw e;
   }
 
   logger.info('connected to redis.');
-  const session = Session({
-    store: new RedisStore({client: client}),
+  const middleware = Session({
+    store: new RedisStore({client: redis}),
     secret: 'thisissecret',
     resave: false,
     saveUninitialized: false,
@@ -61,8 +34,27 @@ export async function getSessionMiddleware(): Promise<RequestHandler> {
     }
   });
 
-  return session;
+  return {redis, middleware};
 };
+
+
+
+function getRedisClient(config: VcmsOptions): Promise<RedisClient> {
+  return new Promise((resolve, reject) => {
+    const redisHost = config.REDIS_HOST.split(':');
+    const client = createClient({
+      host: redisHost[0],
+      port: redisHost[1] ? parseInt(redisHost[1]) : 6379
+    });
+
+    client
+        .on('ready', () => resolve(client))
+
+        .on('error', (e) => client.quit() && reject(e))
+        .on('end', () => logger.info('redis client has closed'));
+  });
+}
+
 
 
 let initSessionFunction: (session: Express.Session) => void = undefined;

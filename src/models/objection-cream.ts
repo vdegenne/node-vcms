@@ -1,6 +1,4 @@
 import {Model} from 'objection';
-// import database from '../database';
-
 
 export class CreamModel extends Model {
   static async count() {
@@ -10,6 +8,3 @@ export class CreamModel extends Model {
 }
 
 export {RelationMappings} from 'objection';
-
-// config
-// Model.knex(database);

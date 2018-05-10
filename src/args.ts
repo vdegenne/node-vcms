@@ -26,9 +26,14 @@ const commandArgs: OptionDefinition[] = [
   },
   {
     name: 'db-port',
-    description: 'Port of the databse to connect to (depends on db-host)'
+    description: 'Port of the databse to connect to (depends on db-host)',
+    type: Number
   },
-  {name: 'db-name', description: 'Name of the databse to connect to'},
+  {
+    name: 'db-name',
+    description: 'Name of the databse to connect to',
+    type: String
+  },
   {name: 'db-user', description: 'The name of the database user', type: String},
   {
     name: 'enable-session',

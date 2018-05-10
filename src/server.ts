@@ -1,4 +1,5 @@
 import {createServer} from 'http';
+import {Model} from 'objection';
 
 import {getApp} from './app';
 import {VcmsOptions} from './config';
@@ -11,29 +12,23 @@ const logger = new Logger('server');
 
 
 export async function startServer(configFilepath?: string): Promise<void> {
-  let config: VcmsOptions;
+  logger.log('Initialising server...');
 
-  if (configFilepath) {
-    config = await getConfig(true, configFilepath);
-  } else {
-    config = await getConfig();
-  }
+  const config: VcmsOptions = await getConfig(configFilepath);
 
   if (config.DATABASE_REQUIRED) {
     try {
-      await getDatabase();
+      const database = await getDatabase(config);
     } catch (e) {
-      console.log('fuck');
       process.exit(1);
     }
   }
 
-  const app = await getApp();
+  const app = await getApp(config);
   const server = createServer(app);
 
-  logger.info('starting...');
   server.listen(config.PORT, () => {
-    logger.info(`Listening on port ${config.PORT}`);
+    logger.success(`Listening on port ${config.PORT}`);
   });
 
   server.on('error', async (e) => {

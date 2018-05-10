@@ -3,7 +3,9 @@ import {existsSync, readFileSync} from 'fs';
 import {safeLoad} from 'js-yaml';
 
 import commandArgs from './args';
+import {Logger} from './logging';
 
+const logger = new Logger('config');
 
 /* defaults */
 const defaultOptions: VcmsOptions = {
@@ -20,32 +22,17 @@ const defaultOptions: VcmsOptions = {
 };
 
 
-let config: VcmsOptions = undefined;
-export let configFromFile: ConfigFileOptions = undefined;
-export let configFromCommandLine: CommandLineOptions = undefined;
-
-
 
 export async function getConfig(
-    getAFresh: boolean = false, configFilepath?: string): Promise<VcmsOptions> {
-  if (!config || getAFresh) {
-    const newconfig = await getAfreshConfig(configFilepath);
-    return newconfig;
-    /* config = newconfig; */
-  } else {
-    return config;
-  }
-}
-
-
-export async function getAfreshConfig(
     configFilepath: string =
         process.cwd() + '/.vcms.yml'): Promise<VcmsOptions> {
   const newconfig: VcmsWritableOptions = Object.assign({}, defaultOptions);
 
 
   /* check if there is a configuration file */
+  let configFromFile: ConfigFileOptions = undefined;
   if (existsSync(configFilepath)) {
+    logger.info(`Using configuration file ${configFilepath}`);
     configFromFile =
         <ConfigFileOptions>safeLoad(readFileSync(configFilepath).toString());
   }
@@ -70,7 +57,7 @@ export async function getAfreshConfig(
   }
 
   /* check for command-line options */
-  configFromCommandLine = commandLineArgs(commandArgs);
+  const configFromCommandLine = commandLineArgs(commandArgs);
 
 
   /*===========
@@ -199,7 +186,9 @@ export async function getAfreshConfig(
         newconfig.DB_PORT = parseInt(process.env.DB_PORT);
       }
       /* from command line */
-      /* TO IMPLEMENT */
+      if (configFromCommandLine && configFromCommandLine['db-port']) {
+        newconfig.DB_PORT = configFromCommandLine['db-port'];
+      }
     }
 
     // if no DB_PORT was found, resolve based on the type
@@ -228,7 +217,9 @@ export async function getAfreshConfig(
         newconfig.DB_NAME = process.env.DB_NAME;
       }
       /* from command line */
-      /* TO IMPLEMENT */
+      if (configFromCommandLine && configFromCommandLine['db-name']) {
+        newconfig.DB_NAME = configFromCommandLine['db-name'];
+      }
     }
 
 
@@ -250,7 +241,9 @@ export async function getAfreshConfig(
         newconfig.DB_USER = process.env.DB_USER;
       }
       /* from command line */
-      /* TO IMPLEMENT */
+      if (configFromCommandLine && configFromCommandLine['db-user']) {
+        newconfig.DB_USER = configFromCommandLine['db-user'];
+      }
     }
 
 
@@ -415,5 +408,8 @@ export interface ConfigFileOptionsBase {
 export interface CommandLineOptions {
   port?: number;
   'enable-database'?: boolean;
+  'db-port'?: number;
+  'db-name'?: string;
+  'db-user'?: string;
   'redis-host'?: string;
 }

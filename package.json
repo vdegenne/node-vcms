@@ -8,9 +8,10 @@
   "scripts": {
     "clean": "rimraf lib",
     "build": "yarn clean && tsc",
-    "pre-test": "psql -U postgres -a -f ./test/sql/install.sql",
-    "test": "NODE_ENV=test mocha",
-    "test:watch": "NODE_ENV=test tsc-then -- mocha",
+    "install:database": "psql -U postgres -a -f ./test/sql/install.sql -p 5433",
+    "uninstall:database": "psql -U postgres -a -f ./test/sql/uninstall.sql -p 5433",
+    "test": "NODE_ENV=dev node test/app",
+    "test:watch": "yarn clean && tsc-then -- LOGGERS=0 mocha",
     "format": "find src test -iname '*.ts' | xargs clang-format --style=file -i"
   },
   "dependencies": {
