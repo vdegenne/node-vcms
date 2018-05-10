@@ -1,15 +1,15 @@
 import {expect} from 'chai';
 
 
-import {update as updateConfig} from '../config';
+import {getConfig} from '../config';
 import {displayAllLoggersInTests} from '../logging';
 import {getRedisClient, getSessionMiddleware} from '../session';
 
 
 
 suite('SessionMiddleware', () => {
-  teardown(() => {
-    run([]);  // force defaults
+  teardown(async () => {
+    await run([]);  // force defaults
   });
 
   const run = async (args: any, configFilepath?: string) => {
@@ -20,33 +20,30 @@ suite('SessionMiddleware', () => {
     process.argv = ['node', 'app'].concat(args);
 
     // run update
-    await updateConfig(configFilepath);
+    await getConfig(true, configFilepath);
 
     // get back to the original context
     process.argv = originalArgv;
   };
 
   let title = 'trying to connect to a non-existent redis host throw an error';
-  test(title, (done) => {
-    run(['--redis-host', 'localhost:6300']).then(async () => {
-      try {
-        await getSessionMiddleware();
-        done('not expected');
-      } catch (e) {
-        done();
-      }
-    });
+  test(title, async () => {
+    await run(['--redis-host', 'localhost:6300']);
+    expect(getSessionMiddleware()).to.be.rejectedWith(Error);
   });
 
   title = 'connecting to an existent redis host returns a session middleware';
   test(title, async () => {
     // use the defaults
-    const middleware = await getSessionMiddleware();
+    expect(getSessionMiddleware()).not.to.be.rejectedWith(Error);
 
-    expect(typeof middleware).to.equal('function');
+    const mw = await getSessionMiddleware();
+    expect(mw).to.be.a('Function');
 
 
-    (await getRedisClient()).quit();
+    if (mw) {
+      (await getRedisClient()).quit();
+    }
   });
 });
 

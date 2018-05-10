@@ -27,17 +27,20 @@ export let configFromCommandLine: CommandLineOptions = undefined;
 
 
 export async function getConfig(
-    forceUpdate: boolean = false,
-    configFilepath?: string): Promise<VcmsOptions> {
-  if (!config || forceUpdate) {
-    await update(configFilepath);
+    getAFresh: boolean = false, configFilepath?: string): Promise<VcmsOptions> {
+  if (!config || getAFresh) {
+    const newconfig = await getAfreshConfig(configFilepath);
+    return newconfig;
+    /* config = newconfig; */
+  } else {
+    return config;
   }
-  return config;
 }
 
 
-export async function update(
-    configFilepath: string = process.cwd() + '/.vcms.yml'): Promise<void> {
+export async function getAfreshConfig(
+    configFilepath: string =
+        process.cwd() + '/.vcms.yml'): Promise<VcmsOptions> {
   const newconfig: VcmsWritableOptions = Object.assign({}, defaultOptions);
 
 
@@ -332,8 +335,8 @@ export async function update(
   }
 
 
-  // finally update the config
-  config = newconfig;
+  // we finally return the new config
+  return <VcmsOptions>newconfig;
 }
 
 

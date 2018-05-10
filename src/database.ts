@@ -1,19 +1,19 @@
 import * as Knex from 'knex';
 import {question} from 'readline-sync';
 
-import {getConfig} from './config';
+import {getConfig, VcmsOptions} from './config';
 import {Logger} from './logging';
 
 const logger = new Logger('database');
 
 let database: Knex = undefined;
 
-export async function getDatabase(): Promise<Knex> {
+export async function getDatabase(config: VcmsOptions): Promise<Knex> {
   if (!database) {
     logger.info('initialising database...');
     let driver: string, knexDialect: string, url: string;
 
-    const config = await getConfig();
+    // const config = await getConfig();
 
     // specific options
     switch (config.DB_TYPE) {
@@ -40,10 +40,10 @@ export async function getDatabase(): Promise<Knex> {
     }
 
     // construct the database url
-    url += `${driver}://`;                             // driver
-    url += `${config.DB_USER}:${config.DB_PASSWORD}`;  // ident
-    url += `@${config.DB_HOST}:${config.DB_PORT}`;     // host
-    url += `/${config.DB_NAME}`;                       // database
+    /*     url += `${driver}://`;                             // driver
+        url += `${config.DB_USER}:${config.DB_PASSWORD}`;  // ident
+        url += `@${config.DB_HOST}:${config.DB_PORT}`;     // host
+        url += `/${config.DB_NAME}`;                       // database */
 
 
     database = Knex({
@@ -71,6 +71,7 @@ export async function getDatabase(): Promise<Knex> {
       await testConnection();
     } catch (e) {
       logger.error(e.message);
+      throw e;
     }
   }
 
