@@ -54,17 +54,3 @@ function getRedisClient(config: VcmsOptions): Promise<RedisClient> {
         .on('end', () => logger.info('redis client has closed'));
   });
 }
-
-
-
-let initSessionFunction: (session: Express.Session) => void = undefined;
-
-export async function registerInitSessionFunction(
-    fct: (session: Express.Session) => void): Promise<void> {
-  initSessionFunction = fct;
-}
-
-export async function getInitSessionFunction():
-    Promise<(session: Express.Session) => void> {
-  return initSessionFunction;
-}

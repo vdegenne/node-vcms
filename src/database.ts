@@ -1,3 +1,4 @@
+import {createHash} from 'crypto';
 import * as Knex from 'knex';
 import {Model} from 'objection';
 import {question} from 'readline-sync';
@@ -25,14 +26,34 @@ export async function getDatabase(config: VcmsOptions): Promise<Knex> {
     throw new Error(error);
   }
 
-  // is the password a digest ?
+
+  /* PASSWORD */
   let password = config.DB_PASSWORD;
-  if (!config.DB_PASSWORD || config.DB_PASSWORD.substr(0, 5) === '{SHA1}') {
+  if (!config.DB_PASSWORD) {
     password = question(
-        `Enter Database Password for ${config.DB_USER}: `,
+        `Enter Database password for ${config.DB_USER}: `,
         {hideEchoBack: true});
   }
 
+  // if the password in the configuration file is a hash
+  if (config.DB_PASSWORD.substr(0, 5) === '{SHA}') {
+    logger.info('The password in the configuration file is encrypted.');
+
+    password = question(
+        `Enter Database password for ${config.DB_USER}: `,
+        {hideEchoBack: true});
+
+    const sha1 = createHash('sha1');
+    sha1.update(password);
+    if (sha1.digest('hex') !== config.DB_PASSWORD.substr(5)) {
+      const errorMsg = 'Password for database is incorrect';
+      logger.error(errorMsg);
+      throw new Error(errorMsg);
+    }
+  }
+
+
+  /* DATABASE NAME */
   let dbname = config.DB_NAME;
   if (!dbname) {
     logger.info(`No Database Name specified, using default (resolved to ${

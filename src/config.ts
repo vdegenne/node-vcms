@@ -2,6 +2,7 @@ import * as commandLineArgs from 'command-line-args';
 import {existsSync, readFileSync} from 'fs';
 import {safeLoad} from 'js-yaml';
 
+import {Routers} from './app';
 import commandArgs from './args';
 import {Logger} from './logging';
 
@@ -32,7 +33,7 @@ export async function getConfig(
   /* check if there is a configuration file */
   let configFromFile: ConfigFileOptions = undefined;
   if (existsSync(configFilepath)) {
-    logger.info(`Using configuration file ${configFilepath}`);
+    logger.log(`Using configuration file ${configFilepath}`);
     configFromFile =
         <ConfigFileOptions>safeLoad(readFileSync(configFilepath).toString());
   }
@@ -354,6 +355,9 @@ export interface VcmsWritableOptions {
 
   SESSION_REQUIRED: boolean;
   REDIS_HOST: string;
+
+  configFilepath?: string, routers?: Routers,
+      initSessionFunction?: (session: Express.Session) => void
 }
 
 /**

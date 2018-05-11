@@ -2,14 +2,12 @@ const {Router} = require('../lib/vcms');
 
 const router = Router();
 
-// GET /hello
+
 router.get('/hello', (req, res) => {
-  res.send('hello world');
+  if (req.session) {
+    res.send(req.session.hello);
+  }
 });
 
-// GET /bye
-router.get('/bye', (req, res) => {
-  res.send('bye world');
-});
 
 module.exports = router;

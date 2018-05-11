@@ -11,14 +11,18 @@ import {getConfig} from './vcms';
 const logger = new Logger('server');
 
 
-export interface StartUpConfig {
+export interface StartupConfig {
   configFilepath?: string, routers: Routers
 }
 
-export async function startServer(startupConfig?: string): Promise<void> {
+export async function startServer(startupConfig?: StartupConfig):
+    Promise<void> {
   logger.log('Initialising server...');
 
-  const config: VcmsOptions = await getConfig(configFilepath);
+
+  const withoutStartupConfig: VcmsOptions =
+      await getConfig(startupConfig.configFilepath);
+  const config = Object.assign({}, withoutStartupConfig, startupConfig);
 
   if (config.DATABASE_REQUIRED) {
     try {

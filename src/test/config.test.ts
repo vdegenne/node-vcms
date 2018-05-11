@@ -52,7 +52,7 @@ suite('Config', () => {
 
   test('process.env takes precedence over config file', async () => {
     // default port is 8000, the port in the file is 123,
-    // process.env.PORT is 321
+    // process.env.PORT is 321l
 
     const originalEnvPort = process.env.PORT;  // save context
     process.env.PORT = '321';                  // change context

@@ -3,7 +3,7 @@ import {Router} from 'express';
 
 import {getConfig, VcmsOptions} from '../config';
 import {Logger} from '../logging';
-import {getInitSessionFunction, getSession} from '../session';
+import {getSession} from '../session';
 
 
 const logger = new Logger('app');
@@ -14,8 +14,8 @@ export type Routers = {
 };
 
 
-export async function getApp(
-    config: VcmsOptions, routers?: Routers): Promise<express.Application> {
+export async function getApp(config: VcmsOptions):
+    Promise<express.Application> {
   const app = express();
 
   app.use(express.json());
@@ -27,13 +27,13 @@ export async function getApp(
   // session, before anything else
   if (config.SESSION_REQUIRED) {
     const session = await getSession(config);
-    const initSessionFunction = await getInitSessionFunction();
+    // const initSessionFunction = await getInitSessionFunction();
     app.use(session.middleware);
 
     // Session Initialisation Function
-    if (initSessionFunction) {
+    if (config.initSessionFunction) {
       app.use(async (req, res, next) => {
-        await initSessionFunction(req.session);
+        await config.initSessionFunction(req.session);
         next();
       });
     }
@@ -49,8 +49,9 @@ export async function getApp(
   app.get('/ping', async (req, res) => res.send('pong\n'));
 
   // routers
-  for (const base in routers) {
-    app.use(base, routers[base]);
+  for (const base in config.routers) {
+    logger.log(`Using ${base}`);
+    app.use(base, config.routers[base]);
   }
 
   return app;
