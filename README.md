@@ -1,6 +1,6 @@
 # vcms
 
-A tiny node cms (express, objection, express-session/redis, and more).
+A tiny node cms (express, objection, express-session/redis, and more).  \
 Though it's not really a CMS, it is intended to ease the management of application content back-end.
 
 
@@ -22,7 +22,7 @@ const {start} = require('vcms');
 start();
 ```
 
-That is the minimum code possible for an application using `vcms`.
+That is the minimum code possible for an application using `vcms`.  \
 You can then run this dummy app with : `node myapp.js`.
 Of course this will just start a server on default port `8000` with nothing but a `ping` route, try :
 
@@ -35,8 +35,8 @@ If it returns `pong` then it means the project has started successfully.
 ## Adding some routers
 
 So far the application is boring and just "ping/pong".
-The next step is to add some routes to your `vcms` application.
-`vcms` organises routes in group of routes in files also called "routers".
+The next step is to add some routes to your `vcms` application.  \
+`vcms` organises routes in group of routes in files also called "routers".  \
 To demonstrate this type of organisational structure, let's create `greetings.router.js` at the root where you created `app.js` in the previous section, and paste this inside :
 
 ```javascript
@@ -83,7 +83,8 @@ When you restart your application the routes `/greetings/hello` and `/greetings/
 
 ## Configuration
 
-We can create a file called `.vcms.yml` (yaml file) at the root of our project. By default, the project has a default state, the `.vcms.yml` file let you override some configuration values in the state. Here's a "useless" `.vcms.yml` file. "useless" because it overrides defaults with the same values, but this way you can see what project properties you can change :
+We can create a file called `.vcms.yml` (yaml file) at the root of our project. By default, the project has a default state, the `.vcms.yml` file let you override some configuration values in the state.  \
+Here's a "useless" `.vcms.yml` file. "useless" because it overrides defaults with the same values, but this way you can see what project properties you can change :
 
 ```yaml
 port: 8000
