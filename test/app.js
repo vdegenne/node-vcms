@@ -1,8 +1,9 @@
 const {start} = require('../lib/vcms');
 
-const configFilepath = `${__dirname}/.vcms.yml`;
+const routers = {
+  '/example': require('./example.router')
+}
 
-console.log(configFilepath);
 
 // start the server
-start(configFilepath);
+start(`${__dirname}/.vcms.yml`, routers);

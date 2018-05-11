@@ -1,7 +1,7 @@
 import {createServer} from 'http';
 import {Model} from 'objection';
 
-import {getApp} from './app';
+import {getApp, Routers} from './app';
 import {VcmsOptions} from './config';
 import {getDatabase} from './database';
 import {Logger} from './logging';
@@ -11,7 +11,11 @@ import {getConfig} from './vcms';
 const logger = new Logger('server');
 
 
-export async function startServer(configFilepath?: string): Promise<void> {
+export interface StartUpConfig {
+  configFilepath?: string, routers: Routers
+}
+
+export async function startServer(startupConfig?: string): Promise<void> {
   logger.log('Initialising server...');
 
   const config: VcmsOptions = await getConfig(configFilepath);
