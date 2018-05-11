@@ -1,4 +1,4 @@
-import {CreamModel} from '../../vcms';
+import {CreamModel} from '../../models/objection-cream';
 
 
 

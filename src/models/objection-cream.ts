@@ -5,6 +5,4 @@ export class CreamModel extends Model {
     const count: any = await this.query().count();
     return parseInt(count[0].count);
   }
-}
-
-export {RelationMappings} from 'objection';
+};

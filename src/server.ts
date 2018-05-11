@@ -3,9 +3,9 @@ import {Model} from 'objection';
 
 import {getApp, Routers} from './app';
 import {VcmsOptions} from './config';
+import {getConfig} from './config';
 import {getDatabase} from './database';
 import {Logger} from './logging';
-import {getConfig} from './vcms';
 
 
 const logger = new Logger('server');
