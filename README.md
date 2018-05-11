@@ -1,6 +1,7 @@
 # vcms
 
-A tiny node cms (express, objection, express-session/redis, and more)
+A tiny node cms (express, objection, express-session/redis, and more).
+Though it's not really a CMS, it is intended to ease the management of application content back-end.
 
 
 ## Installation
@@ -13,7 +14,7 @@ npm i vcms
 
 ## Starting a project
 
-create a `myapp.js` file :
+create `app.js` file (or whatever name you like) :
 
 ```javascript
 const {start} = require('vcms');
@@ -21,14 +22,64 @@ const {start} = require('vcms');
 start();
 ```
 
-That is the minimum code that you can write to make a `vcms` application. Run using `node myapp.js`. Of course this will just start a server on default port `8000` with nothing but a `ping` route :
+That is the minimum code possible for an application using `vcms`.
+You can then run this dummy app with : `node myapp.js`.
+Of course this will just start a server on default port `8000` with nothing but a `ping` route, try :
 
 ```bash
 curl localhost:8000/ping
 ```
 
-Try this, if it returns `pong` then it means the project has started successfully.
-It is noot very interesting for now but you can add some routers later on. But let see how to configure a bit the environment.
+If it returns `pong` then it means the project has started successfully.
+
+## Adding some routers
+
+So far the application is boring and just "ping/pong".
+The next step is to add some routes to your `vcms` application.
+`vcms` organises routes in group of routes in files also called "routers".
+To demonstrate this type of organisational structure, let's create `greetings.router.js` at the root where you created `app.js` in the previous section, and paste this inside :
+
+```javascript
+const {Router} = require('vcms');
+
+const router = Router();
+
+// GET /hello
+router.get('/hello', async (req, res) => {
+  res.send('hello world');
+});
+
+// GET /bye
+router.get('/bye', async (req, res) => {
+  res.send('bye world');
+});
+
+module.exports = router;
+```
+
+Now you have to tell your application to use this router (which provides 2 routes `/hello` and `/bye`).
+
+Modify `app.js` :
+
+```javascript
+const {start} = require('vcms');
+const greetingsRouter = require('./greetings.router');
+
+const myrouters = {
+  '/greetings': greetingsRouter
+}
+
+start({
+  routers: myrouters
+});
+```
+
+`myrouters` is an object containing **key**/**value**, the **key** is the base of the router (url suffix) and the **value** is the router you want to register in your app.
+
+When you restart your application the routes `/greetings/hello` and `/greetings/bye` are reachable.
+
+(*note: When the number of routers grow up, it's good practice to place them in a so called `routers` directory*)
+
 
 ## Configuration
 
@@ -47,12 +98,12 @@ redis-host: localhost:6379
 node-env: prod
 ```
 
-**By default, every modules are deactivated (`false`), every connection are `localhost` , the default server listening port is `8000`, and the default node environment is `prod`.**
+*By default, every modules are deactivated (`false`), every connection are `localhost` , the default server listening port is `8000`, and the default node environment is `prod`.*
 
 You can also pass most of the configuration values when you invoke your program, for instance :
 
 ```bash
-node myapp.js --redis-host 1.2.3.4:6379
+node myapp.js --enable-session --redis-host 1.2.3.4:6379
 ```
 
 This will override the default `localhost:6379` or the value `redis-host` if set inside the `.vcms.yml`.
@@ -64,39 +115,3 @@ This will override the default `localhost:6379` or the value `redis-host` if set
 defaults **<** process.env **<** .vcms.yml file **<** command-line arguments
 
 
-## Routers
-
-So far the application is boring and just ping/pong. `vcms` best usage is to define group of routes in file called "routers". To demonstrate, let's create `example.router.js` at the root of the project and let's copy/paste the following snippet inside :
-
-```javascript
-const {Router} = require('vcms');
-
-const router = Router();
-
-// GET /hello
-router.get('/hello', (req, res) => {
-  res.send('hello world');
-});
-
-// GET /bye
-router.get('/bye', (req, res) => {
-  res.send('bye world');
-});
-
-module.exports = router;
-```
-
-and modify `myapp.js` to register the previous created router :
-
-```javascript
-const {start, registerRouter} = require('vcms');
-const exampleRouter = require('./example.router');
-
-registerRouter('/example', exampleRouter);
-
-start();
-```
-
-When you restart your application the routes `/example/hello` and `/example/bye` are accessibles.
-
-(*note: When the number of routers grow up, it's good practice to place them in a so called `routers` directory*)

@@ -101,7 +101,7 @@ export async function getDatabase(config: VcmsOptions): Promise<Knex> {
 export async function testDatabaseConnection(database: Knex):
     Promise<Error|void> {
   try {
-    const r = await database.raw('select * from test_table');
+    const r = await database.raw('select 1+1 as result');
   } catch (e) {
     throw new Error(e.message);
   }

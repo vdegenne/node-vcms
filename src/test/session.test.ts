@@ -40,13 +40,15 @@ suite('SessionMiddleware', () => {
     // get back to the original context
     process.argv = originalArgv;
 
+    console.log(config);
     return config;
   };
+
 
   let title = 'trying to connect to a non-existent redis host throw an error';
   test(title, async () => {
     expect(run(undefined, [
-      '--redis-host', 'localhost:6300'
+      '--enable-session', '--redis-host', 'localhost:6300'
     ])).to.be.rejectedWith(Error);
   });
 

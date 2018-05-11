@@ -9,7 +9,7 @@ import {Logger} from './logging';
 const logger = new Logger('session');
 
 export interface Session {
-  redis: RedisClient, middleware: RequestHandler
+  readonly redis: RedisClient, readonly middleware: RequestHandler
 }
 
 
@@ -23,16 +23,27 @@ export async function getSession(config: VcmsOptions): Promise<Session> {
     throw e;
   }
 
-  logger.info('connected to redis.');
-  const middleware = Session({
+  logger.info('Connected to redis.');
+
+  const sessionOptions: Session.SessionOptions = {
     store: new RedisStore({client: redis}),
     secret: 'thisissecret',
     resave: false,
-    saveUninitialized: false,
-    cookie: {
-      domain: config.NODE_ENV === 'prod' ? '.vdegenne.com' : '.vdegenne.local'
-    }
-  });
+    saveUninitialized: false
+  }
+
+  if (config.SESSION_COOKIE_DOMAIN) {
+    logger.log(
+        `Using ${config.SESSION_COOKIE_DOMAIN} for the session cookie domain.`);
+    sessionOptions.cookie = {};
+    sessionOptions.cookie.domain = config.SESSION_COOKIE_DOMAIN;
+  }
+  else {
+    logger.info(
+        'No Session Cookie Domain set. It will use the whole url address (e.g. "www.example.com") provided by the requests.');
+  }
+
+  const middleware = Session(sessionOptions);
 
   return {redis, middleware};
 };

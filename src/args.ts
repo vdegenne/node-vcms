@@ -46,6 +46,12 @@ const commandArgs: OptionDefinition[] = [
     name: 'redis-host',
     description: 'Redis Host (e.g. localhost:6379)',
     type: String
+  },
+  {
+    name: 'session-cookie-domain',
+    description:
+        'Domain of the Session cookie (e.g. ".example.com"). That option lets you exchange session data between application in the same domain scope',
+    type: String
   }
 ];
 

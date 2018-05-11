@@ -20,9 +20,14 @@ export async function startServer(startupConfig?: StartupConfig):
   logger.log('Initialising server...');
 
 
-  const withoutStartupConfig: VcmsOptions =
-      await getConfig(startupConfig.configFilepath);
-  const config = Object.assign({}, withoutStartupConfig, startupConfig);
+  // get defaults & from-configuration-file configurations
+  let config: VcmsOptions = await getConfig(
+      (startupConfig && startupConfig.configFilepath) || undefined);
+
+  // merge and/or add startup configurations
+  if (startupConfig) {
+    config = Object.assign({}, config, startupConfig);
+  }
 
   if (config.DATABASE_REQUIRED) {
     try {

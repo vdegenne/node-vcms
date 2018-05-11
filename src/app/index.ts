@@ -50,7 +50,7 @@ export async function getApp(config: VcmsOptions):
 
   // routers
   for (const base in config.routers) {
-    logger.log(`Using ${base}`);
+    logger.log(`Providing route "${base}"`);
     app.use(base, config.routers[base]);
   }
 

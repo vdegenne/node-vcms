@@ -22,13 +22,10 @@ const defaultOptions: VcmsOptions = {
   REDIS_HOST: 'localhost:6379'
 };
 
-
-
 export async function getConfig(
     configFilepath: string =
         process.cwd() + '/.vcms.yml'): Promise<VcmsOptions> {
-  const newconfig: VcmsWritableOptions = Object.assign({}, defaultOptions);
-
+  const config: VcmsWritableOptions = Object.assign({}, defaultOptions);
 
   /* check if there is a configuration file */
   let configFromFile: ConfigFileOptions = undefined;
@@ -38,20 +35,18 @@ export async function getConfig(
         <ConfigFileOptions>safeLoad(readFileSync(configFilepath).toString());
   }
 
-
-
   /*===========
    = NODE_ENV =
    ===========*/
   if (true) {
     /* from file */
     if (configFromFile && configFromFile['node-env']) {
-      newconfig.NODE_ENV = configFromFile['node-env']
+      config.NODE_ENV = configFromFile['node-env']
     }
     /* from process.env */
     if (process.env.NODE_ENV &&
         ['test', 'dev', 'prod'].includes(process.env.NODE_ENV)) {
-      newconfig.NODE_ENV = process.env.NODE_ENV
+      config.NODE_ENV = process.env.NODE_ENV
     }
     /* from command line */
     /* TO IMPLEMENT */
@@ -60,30 +55,28 @@ export async function getConfig(
   /* check for command-line options */
   const configFromCommandLine = commandLineArgs(commandArgs);
 
-
   /*===========
    =   PORT   =
    ===========*/
   if (true) {
     /* from file */
     if (configFromFile) {
-      if (configFromFile[newconfig.NODE_ENV] &&
-          configFromFile[newconfig.NODE_ENV].port) {
-        newconfig.PORT = configFromFile[newconfig.NODE_ENV].port
+      if (configFromFile[config.NODE_ENV] &&
+          configFromFile[config.NODE_ENV].port) {
+        config.PORT = configFromFile[config.NODE_ENV].port
       } else if (configFromFile.port) {
-        newconfig.PORT = configFromFile.port
+        config.PORT = configFromFile.port
       }
     }
     /* from process.env */
     if (process.env.PORT) {
-      newconfig.PORT = parseInt(process.env.PORT);
+      config.PORT = parseInt(process.env.PORT);
     }
     /* from command line */
     if (configFromCommandLine && configFromCommandLine.port) {
-      newconfig.PORT = configFromCommandLine.port;
+      config.PORT = configFromCommandLine.port;
     }
   }
-
 
   /*====================
    = DATABASE_REQUIRED =
@@ -91,48 +84,46 @@ export async function getConfig(
   if (true) {
     /* from file */
     if (configFromFile) {
-      if (configFromFile[newconfig.NODE_ENV] &&
-          configFromFile[newconfig.NODE_ENV].database) {
-        newconfig.DATABASE_REQUIRED =
-            configFromFile[newconfig.NODE_ENV].database
+      if (configFromFile[config.NODE_ENV] &&
+          configFromFile[config.NODE_ENV].database) {
+        config.DATABASE_REQUIRED = configFromFile[config.NODE_ENV].database
       } else if (configFromFile.database) {
-        newconfig.DATABASE_REQUIRED = configFromFile.database
+        config.DATABASE_REQUIRED = configFromFile.database
       }
     }
     /* from process.env */
     if (process.env.DATABASE_REQUIRED) {
-      newconfig.DATABASE_REQUIRED =
+      config.DATABASE_REQUIRED =
           process.env.DATABASE_REQUIRED.toLowerCase() === 'true' ? true : false;
     }
     /* from command line */
     if (configFromCommandLine && configFromCommandLine['enable-database']) {
-      newconfig.DATABASE_REQUIRED = configFromCommandLine['enable-database'];
+      config.DATABASE_REQUIRED = configFromCommandLine['enable-database'];
     }
   }
 
   // in case the database is required
-  if (newconfig.DATABASE_REQUIRED) {
+  if (config.DATABASE_REQUIRED) {
     /*===========
      = DB_TYPE  =
      ===========*/
     if (true) {
       /* from file */
       if (configFromFile) {
-        if (configFromFile[newconfig.NODE_ENV] &&
-            configFromFile[newconfig.NODE_ENV]['db-type']) {
-          newconfig.DB_TYPE = configFromFile[newconfig.NODE_ENV]['db-type']
+        if (configFromFile[config.NODE_ENV] &&
+            configFromFile[config.NODE_ENV]['db-type']) {
+          config.DB_TYPE = configFromFile[config.NODE_ENV]['db-type']
         } else if (configFromFile['db-type']) {
-          newconfig.DB_TYPE = configFromFile['db-type'];
+          config.DB_TYPE = configFromFile['db-type'];
         }
       }
       /* from process.env */
       if (process.env.DB_TYPE) {
-        newconfig.DB_TYPE = process.env.DB_TYPE;
+        config.DB_TYPE = process.env.DB_TYPE;
       }
       /* from command line */
       /* TO IMPLEMENT */
     }
-
 
     /*===========
      = DB_HOST  =
@@ -140,11 +131,11 @@ export async function getConfig(
     if (true) {
       /* from file */
       if (configFromFile) {
-        if (configFromFile[newconfig.NODE_ENV] &&
-            configFromFile[newconfig.NODE_ENV]['db-host']) {
-          newconfig.DB_HOST = configFromFile[newconfig.NODE_ENV]['db-host']
+        if (configFromFile[config.NODE_ENV] &&
+            configFromFile[config.NODE_ENV]['db-host']) {
+          config.DB_HOST = configFromFile[config.NODE_ENV]['db-host']
         } else if (configFromFile['db-host']) {
-          newconfig.DB_HOST = configFromFile['db-host']
+          config.DB_HOST = configFromFile['db-host']
         }
       }
       /* from process.env */
@@ -153,9 +144,9 @@ export async function getConfig(
           if (!process.env.DOCKER_HOST) {
             throw new Error('DOCKER_HOST is not defined.');
           }
-          newconfig.DB_HOST = process.env.DOCKER_HOST
+          config.DB_HOST = process.env.DOCKER_HOST
         } else {
-          newconfig.DB_HOST = process.env.DB_HOST;
+          config.DB_HOST = process.env.DB_HOST;
         }
       }
       /* from command line */
@@ -163,10 +154,10 @@ export async function getConfig(
     }
 
     // format DB_HOST in case it contains the port
-    if (newconfig.DB_HOST.indexOf(':') > -1) {
-      const dbHostParts = newconfig.DB_HOST.split(':');
-      newconfig.DB_HOST = dbHostParts[0];
-      newconfig.DB_PORT = parseInt(dbHostParts[1]);
+    if (config.DB_HOST.indexOf(':') > -1) {
+      const dbHostParts = config.DB_HOST.split(':');
+      config.DB_HOST = dbHostParts[0];
+      config.DB_PORT = parseInt(dbHostParts[1]);
     }
 
     /*===========
@@ -175,28 +166,28 @@ export async function getConfig(
     if (true) {
       /* from file */
       if (configFromFile) {
-        if (configFromFile[newconfig.NODE_ENV] &&
-            configFromFile[newconfig.NODE_ENV]['db-port']) {
-          newconfig.DB_PORT = configFromFile[newconfig.NODE_ENV]['db-port']
+        if (configFromFile[config.NODE_ENV] &&
+            configFromFile[config.NODE_ENV]['db-port']) {
+          config.DB_PORT = configFromFile[config.NODE_ENV]['db-port']
         } else if (configFromFile['db-port']) {
-          newconfig.DB_PORT = parseInt(configFromFile['db-port']);
+          config.DB_PORT = parseInt(configFromFile['db-port']);
         }
       }
       /* from process.env */
       if (process.env.DB_PORT) {
-        newconfig.DB_PORT = parseInt(process.env.DB_PORT);
+        config.DB_PORT = parseInt(process.env.DB_PORT);
       }
       /* from command line */
       if (configFromCommandLine && configFromCommandLine['db-port']) {
-        newconfig.DB_PORT = configFromCommandLine['db-port'];
+        config.DB_PORT = configFromCommandLine['db-port'];
       }
     }
 
     // if no DB_PORT was found, resolve based on the type
-    if (!newconfig.DB_PORT) {
-      switch (newconfig.DB_TYPE) {
+    if (!config.DB_PORT) {
+      switch (config.DB_TYPE) {
         case 'pg':
-          newconfig.DB_PORT = 5432;
+          config.DB_PORT = 5432;
       }
     }
 
@@ -206,23 +197,22 @@ export async function getConfig(
     if (true) {
       /* from file */
       if (configFromFile) {
-        if (configFromFile[newconfig.NODE_ENV] &&
-            configFromFile[newconfig.NODE_ENV]['db-name']) {
-          newconfig.DB_NAME = configFromFile[newconfig.NODE_ENV]['db-name']
+        if (configFromFile[config.NODE_ENV] &&
+            configFromFile[config.NODE_ENV]['db-name']) {
+          config.DB_NAME = configFromFile[config.NODE_ENV]['db-name']
         } else if (configFromFile['db-name']) {
-          newconfig.DB_NAME = configFromFile['db-name'];
+          config.DB_NAME = configFromFile['db-name'];
         }
       }
       /* from process.env */
       if (process.env.DB_NAME) {
-        newconfig.DB_NAME = process.env.DB_NAME;
+        config.DB_NAME = process.env.DB_NAME;
       }
       /* from command line */
       if (configFromCommandLine && configFromCommandLine['db-name']) {
-        newconfig.DB_NAME = configFromCommandLine['db-name'];
+        config.DB_NAME = configFromCommandLine['db-name'];
       }
     }
-
 
     /*===========
      = DB_USER  =
@@ -230,23 +220,22 @@ export async function getConfig(
     if (true) {
       /* from file */
       if (configFromFile) {
-        if (configFromFile[newconfig.NODE_ENV] &&
-            configFromFile[newconfig.NODE_ENV]['db-user']) {
-          newconfig.DB_USER = configFromFile[newconfig.NODE_ENV]['db-user']
+        if (configFromFile[config.NODE_ENV] &&
+            configFromFile[config.NODE_ENV]['db-user']) {
+          config.DB_USER = configFromFile[config.NODE_ENV]['db-user']
         } else if (configFromFile['db-user']) {
-          newconfig.DB_USER = configFromFile['db-user'];
+          config.DB_USER = configFromFile['db-user'];
         }
       }
       /* from process.env */
       if (process.env.DB_USER) {
-        newconfig.DB_USER = process.env.DB_USER;
+        config.DB_USER = process.env.DB_USER;
       }
       /* from command line */
       if (configFromCommandLine && configFromCommandLine['db-user']) {
-        newconfig.DB_USER = configFromCommandLine['db-user'];
+        config.DB_USER = configFromCommandLine['db-user'];
       }
     }
-
 
     /*===============
      = DB_PASSWORD  =
@@ -254,24 +243,21 @@ export async function getConfig(
     if (true) {
       /* from file */
       if (configFromFile) {
-        if (configFromFile[newconfig.NODE_ENV] &&
-            configFromFile[newconfig.NODE_ENV]['db-password']) {
-          newconfig.DB_PASSWORD =
-              configFromFile[newconfig.NODE_ENV]['db-password']
+        if (configFromFile[config.NODE_ENV] &&
+            configFromFile[config.NODE_ENV]['db-password']) {
+          config.DB_PASSWORD = configFromFile[config.NODE_ENV]['db-password']
         } else if (configFromFile['db-password']) {
-          newconfig.DB_PASSWORD = configFromFile['db-password'];
+          config.DB_PASSWORD = configFromFile['db-password'];
         }
       }
       /* from process.env */
       if (process.env.DB_PASSWORD) {
-        newconfig.DB_PASSWORD = process.env.DB_PASSWORD;
+        config.DB_PASSWORD = process.env.DB_PASSWORD;
       }
       /* from command line */
       /* TO IMPLEMENT */
     }
   }
-
-
 
   /*===================
    = SESSION_REQUIRED =
@@ -279,61 +265,88 @@ export async function getConfig(
   if (true) {
     /* from file */
     if (configFromFile) {
-      if (configFromFile[newconfig.NODE_ENV] &&
-          configFromFile[newconfig.NODE_ENV].session) {
-        newconfig.SESSION_REQUIRED = configFromFile[newconfig.NODE_ENV].session
+      if (configFromFile[config.NODE_ENV] &&
+          configFromFile[config.NODE_ENV].session) {
+        config.SESSION_REQUIRED = configFromFile[config.NODE_ENV].session
       } else if (configFromFile.session) {
-        newconfig.SESSION_REQUIRED = configFromFile.session
+        config.SESSION_REQUIRED = configFromFile.session
       }
     }
     /* from process.env */
     if (process.env.SESSION_REQUIRED) {
-      newconfig.SESSION_REQUIRED =
+      config.SESSION_REQUIRED =
           process.env.SESSION_REQUIRED.toLowerCase() === 'true' ? true : false;
     }
     /* from command line */
     if (configFromCommandLine && configFromCommandLine['enable-session']) {
-      newconfig.SESSION_REQUIRED = configFromCommandLine['enable-session'];
+      config.SESSION_REQUIRED = configFromCommandLine['enable-session'];
     }
   }
 
-
-  /*=============
-   = REDIS_HOST =
-   =============*/
-  if (true) {
-    /* from file */
-    if (configFromFile) {
-      if (configFromFile[newconfig.NODE_ENV] &&
-          configFromFile[newconfig.NODE_ENV]['redis-host']) {
-        newconfig.REDIS_HOST = configFromFile[newconfig.NODE_ENV]['redis-host']
-      } else if (configFromFile['redis-host']) {
-        newconfig.REDIS_HOST = configFromFile['redis-host']
-      }
-    }
-    /* from process.env */
-    if (process.env.REDIS_HOST) {
-      if (process.env.REDIS_HOST === 'DOCKER_HOST') {
-        if (!process.env.DOCKER_HOST) {
-          throw new Error('DOCKER_HOST is not defined.');
+  // if session is required, specific options
+  if (config.SESSION_REQUIRED) {
+    /*=============
+     = REDIS_HOST =
+     =============*/
+    if (true) {
+      /* from file */
+      if (configFromFile) {
+        if (configFromFile[config.NODE_ENV] &&
+            configFromFile[config.NODE_ENV]['redis-host']) {
+          config.REDIS_HOST = configFromFile[config.NODE_ENV]['redis-host']
+        } else if (configFromFile['redis-host']) {
+          config.REDIS_HOST = configFromFile['redis-host']
         }
-        newconfig.REDIS_HOST = process.env.DOCKER_HOST
-      } else {
-        newconfig.REDIS_HOST = process.env.REDIS_HOST;
+      }
+      /* from process.env */
+      if (process.env.REDIS_HOST) {
+        if (process.env.REDIS_HOST === 'DOCKER_HOST') {
+          if (!process.env.DOCKER_HOST) {
+            throw new Error('DOCKER_HOST is not defined.');
+          }
+          config.REDIS_HOST = process.env.DOCKER_HOST
+        } else {
+          config.REDIS_HOST = process.env.REDIS_HOST;
+        }
+      }
+      /* from command line */
+      if (configFromCommandLine && configFromCommandLine['redis-host']) {
+        config.REDIS_HOST = configFromCommandLine['redis-host'];
       }
     }
-    /* from command line */
-    if (configFromCommandLine && configFromCommandLine['redis-host']) {
-      newconfig.REDIS_HOST = configFromCommandLine['redis-host'];
+
+
+    /*============================
+     =   SESSION_COOKIE_DOMAIN   =
+     ============================*/
+    if (true) {
+      /* from file */
+      if (configFromFile) {
+        if (configFromFile[config.NODE_ENV] &&
+            configFromFile[config.NODE_ENV]['session-cookie-domain']) {
+          config.SESSION_COOKIE_DOMAIN =
+              configFromFile[config.NODE_ENV]['session-cookie-domain']
+        } else if (configFromFile.port) {
+          config.SESSION_COOKIE_DOMAIN = configFromFile['session-cookie-domain']
+        }
+      }
+      /* from process.env */
+      if (process.env.SESSION_COOKIE_DOMAIN) {
+        config.SESSION_COOKIE_DOMAIN = process.env.SESSION_COOKIE_DOMAIN;
+      }
+      /* from command line */
+      if (configFromCommandLine &&
+          configFromCommandLine['session-cookie-domain']) {
+        config.SESSION_COOKIE_DOMAIN =
+            configFromCommandLine['session-cookie-domain'];
+      }
     }
   }
 
 
-  // we finally return the new config
-  return <VcmsOptions>newconfig;
+  // we finally return the config
+  return <VcmsOptions>config;
 }
-
-
 
 /**
  * Vcms Writable Options
@@ -354,7 +367,8 @@ export interface VcmsWritableOptions {
   DB_PASSWORD?: string;
 
   SESSION_REQUIRED: boolean;
-  REDIS_HOST: string;
+  REDIS_HOST?: string;
+  SESSION_COOKIE_DOMAIN?: string;
 
   configFilepath?: string, routers?: Routers,
       initSessionFunction?: (session: Express.Session) => void
@@ -374,16 +388,14 @@ export interface VcmsOptions extends VcmsWritableOptions {
   readonly DB_HOST?: string;
   readonly DB_PORT?: number;
 
-
   readonly DB_NAME?: string;
   readonly DB_USER?: string;
   readonly DB_PASSWORD?: string;
 
-
   readonly SESSION_REQUIRED: boolean;
-  readonly REDIS_HOST: string;
+  readonly REDIS_HOST?: string;
+  readonly SESSION_COOKIE_DOMAIN?: string;
 }
-
 
 export interface ConfigFileOptions extends ConfigFileOptionsBase {
   prod: ConfigFileOptionsBase;
@@ -406,8 +418,8 @@ export interface ConfigFileOptionsBase {
 
   session?: boolean;
   'redis-host'?: string;
+  'session-cookie-domain'?: string;
 }
-
 
 export interface CommandLineOptions {
   port?: number;
@@ -416,4 +428,5 @@ export interface CommandLineOptions {
   'db-name'?: string;
   'db-user'?: string;
   'redis-host'?: string;
+  'session-cookie-domain'?: string;
 }
