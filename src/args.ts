@@ -9,6 +9,12 @@ const commandArgs: OptionDefinition[] = [
     type: Number
   },
   {
+    name: 'local-hostname',
+    alias: 'h',
+    description: 'The Local Hostname (e.g. "localhost", "app.example.local")',
+    type: String
+  },
+  {
     name: 'enable-database',
     alias: 'd',
     description: 'Enable the database module',

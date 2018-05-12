@@ -12,11 +12,12 @@
     "starter"
   ],
   "scripts": {
+    "run:dev": "NODE_ENV=dev node test/app",
     "clean": "rimraf lib",
     "build": "yarn clean && tsc",
-    "install:database": "psql -U postgres -a -f ./test/sql/install.sql -p 5433",
-    "uninstall:database": "psql -U postgres -a -f ./test/sql/uninstall.sql -p 5433",
-    "test": "NODE_ENV=dev node test/app",
+    "install:database": "psql -U postgres -a -f ./test/sql/install.sql",
+    "uninstall:database": "psql -U postgres -a -f ./test/sql/uninstall.sql",
+    "test": "LOGGERS=0 mocha",
     "test:watch": "yarn clean && tsc-then -- LOGGERS=0 mocha",
     "format": "find src test -iname '*.ts' | xargs clang-format --style=file -i"
   },

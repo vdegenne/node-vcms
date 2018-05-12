@@ -23,6 +23,7 @@ export async function getSession(config: VcmsOptions): Promise<Session> {
     throw e;
   }
 
+
   logger.info('Connected to redis.');
 
   const sessionOptions: Session.SessionOptions = {
@@ -53,6 +54,7 @@ export async function getSession(config: VcmsOptions): Promise<Session> {
 function getRedisClient(config: VcmsOptions): Promise<RedisClient> {
   return new Promise((resolve, reject) => {
     const redisHost = config.REDIS_HOST.split(':');
+
     const client = createClient({
       host: redisHost[0],
       port: redisHost[1] ? parseInt(redisHost[1]) : 6379
@@ -61,7 +63,11 @@ function getRedisClient(config: VcmsOptions): Promise<RedisClient> {
     client
         .on('ready', () => resolve(client))
 
-        .on('error', (e) => client.quit() && reject(e))
-        .on('end', () => logger.info('redis client has closed'));
+        .on('error',
+            (e) => {
+              client.quit();
+              reject(e);
+            })
+        .on('end', (e) => logger.info('redis client has closed'));
   });
 }

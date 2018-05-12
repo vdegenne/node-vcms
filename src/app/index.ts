@@ -26,8 +26,13 @@ export async function getApp(config: VcmsOptions):
 
   // session, before anything else
   if (config.SESSION_REQUIRED) {
-    const session = await getSession(config);
-    // const initSessionFunction = await getInitSessionFunction();
+    let session;
+    try {
+      session = await getSession(config);
+    } catch (e) {
+      throw e;
+    }
+
     app.use(session.middleware);
 
     // Session Initialisation Function

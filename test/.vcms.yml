@@ -1,17 +1,15 @@
+local-hostname: testapp.vdegenne.local
 port: 3000
 
 database: true
 
-db-port: 5433
+db-port: 5432
 db-user: vcms_user
 db-password: '{SHA}5baa61e4c9b93f3f0682250b6cf8331b7ee68fd8'
 db-name: vcms_test
 
-
 session: true
-
-dev:
-  session-cookie-domain: .vdegenne.local
+session-cookie-domain: .vdegenne.local
 
 
 prod:

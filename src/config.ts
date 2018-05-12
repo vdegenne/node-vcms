@@ -10,8 +10,9 @@ const logger = new Logger('config');
 
 /* defaults */
 const defaultOptions: VcmsOptions = {
-  NODE_ENV: 'prod',
+  NODE_ENV: 'production',
   PORT: 8000,
+  LOCAL_HOSTNAME: 'localhost',
 
   DATABASE_REQUIRED: false,
   DB_HOST: 'localhost:5432',
@@ -77,6 +78,33 @@ export async function getConfig(
       config.PORT = configFromCommandLine.port;
     }
   }
+
+
+  /*=====================
+   =   LOCAL_HOSTNAME   =
+   =====================*/
+  if (true) {
+    /* from file */
+    if (configFromFile) {
+      if (configFromFile[config.NODE_ENV] &&
+          configFromFile[config.NODE_ENV]['local-hostname']) {
+        config.LOCAL_HOSTNAME =
+            configFromFile[config.NODE_ENV]['local-hostname']
+      } else if (configFromFile['local-hostname']) {
+        config.LOCAL_HOSTNAME = configFromFile['local-hostname']
+      }
+    }
+    /* from process.env */
+    if (process.env.LOCAL_HOSTNAME) {
+      config.LOCAL_HOSTNAME = process.env.LOCAL_HOSTNAME;
+    }
+    /* from command line */
+    if (configFromCommandLine && configFromCommandLine['local-hostname']) {
+      config.LOCAL_HOSTNAME = configFromCommandLine['local-hostname'];
+    }
+  }
+
+
 
   /*====================
    = DATABASE_REQUIRED =
@@ -356,6 +384,7 @@ export async function getConfig(
 export interface VcmsWritableOptions {
   NODE_ENV: string;
   PORT: number;
+  LOCAL_HOSTNAME: string;
 
   DATABASE_REQUIRED: boolean;
   DB_TYPE?: string;
@@ -382,6 +411,7 @@ export interface VcmsWritableOptions {
 export interface VcmsOptions extends VcmsWritableOptions {
   readonly NODE_ENV: string;
   readonly PORT: number;
+  readonly LOCAL_HOSTNAME: string;
 
   readonly DATABASE_REQUIRED: boolean;
   readonly DB_TYPE?: string;
@@ -407,6 +437,7 @@ export interface ConfigFileOptions extends ConfigFileOptionsBase {
 
 export interface ConfigFileOptionsBase {
   port?: number;
+  'local-hostname'?: string;
 
   database?: boolean;
   'db-type'?: string;
@@ -423,6 +454,7 @@ export interface ConfigFileOptionsBase {
 
 export interface CommandLineOptions {
   port?: number;
+  'local-hostname'?: string;
   'enable-database'?: boolean;
   'db-port'?: number;
   'db-name'?: string;

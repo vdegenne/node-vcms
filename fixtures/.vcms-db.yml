@@ -1,5 +1,5 @@
 database: true
-db-host: localhost:5433
+db-host: localhost:5432
 db-name: vcms_test
 db-user: vcms_user
 db-password: password

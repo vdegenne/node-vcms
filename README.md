@@ -23,7 +23,7 @@ start();
 ```
 
 That is the minimum code possible for an application using `vcms`.  \
-You can then run this dummy app with : `node myapp.js`.
+You can then run this dummy app with : `node app.js`.
 Of course this will just start a server on default port `8000` with nothing but a `ping` route, try :
 
 ```bash
@@ -36,7 +36,7 @@ If it returns `pong` then it means the project has started successfully.
 
 So far the application is boring and just "ping/pong".
 The next step is to add some routes to your `vcms` application.  \
-`vcms` organises routes in group of routes in files also called "routers".  \
+`vcms` organises routes into groups of routes in files also called "routers".  \
 To demonstrate this type of organisational structure, let's create `greetings.router.js` at the root where you created `app.js` in the previous section, and paste this inside :
 
 ```javascript

@@ -41,7 +41,7 @@ export async function startServer(startupConfig?: StartupConfig):
   const server = createServer(app);
 
   server.listen(config.PORT, () => {
-    logger.success(`Listening on port ${config.PORT}`);
+    logger.success(`Listening http://${config.LOCAL_HOSTNAME}:${config.PORT}`);
   });
 
   server.on('error', async (e) => {
