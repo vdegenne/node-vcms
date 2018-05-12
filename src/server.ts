@@ -12,7 +12,7 @@ const logger = new Logger('server');
 
 
 export interface StartupConfig {
-  configFilepath?: string, routers: Routers,
+  configFilepath?: string, routers?: Routers,
       initSessionFunction?: (session: Express.Session) => void
 }
 
