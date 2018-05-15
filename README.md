@@ -1,3 +1,5 @@
+[![npm](https://img.shields.io/npm/v/vcms.svg)](https://www.npmjs.com/package/vcms)
+
 # vcms
 
 a tiny node cms (express, objection, express-session/redis, and more).  \
