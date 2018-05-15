@@ -370,30 +370,29 @@ export async function getConfig(configFilepath?: string): Promise<VcmsOptions> {
             configFromCommandLine['session-cookie-domain'];
       }
     }
+  }
 
-
-    /*=======================
-     =   PUBLIC_DIRECTORY   =
-     =======================*/
-    if (true) {
-      /* from file */
-      if (configFromFile) {
-        if (configFromFile[config.NODE_ENV] &&
-            configFromFile[config.NODE_ENV]['public-directory']) {
-          config.publicDirectory =
-              configFromFile[config.NODE_ENV]['public-directory']
-        } else if (configFromFile['public-directory']) {
-          config.publicDirectory = configFromFile['public-directory']
-        }
+  /*=======================
+   =   PUBLIC_DIRECTORY   =
+   =======================*/
+  if (true) {
+    /* from file */
+    if (configFromFile) {
+      if (configFromFile[config.NODE_ENV] &&
+          configFromFile[config.NODE_ENV]['public-directory']) {
+        config.publicDirectory =
+            configFromFile[config.NODE_ENV]['public-directory']
+      } else if (configFromFile['public-directory']) {
+        config.publicDirectory = configFromFile['public-directory']
       }
-      /* from process.env */
-      if (process.env.PUBLIC_DIRECTORY) {
-        config.publicDirectory = process.env.PUBLIC_DIRECTORY;
-      }
-      /* from command line */
-      if (configFromCommandLine && configFromCommandLine['public-directory']) {
-        config.publicDirectory = configFromCommandLine['public-directory'];
-      }
+    }
+    /* from process.env */
+    if (process.env.PUBLIC_DIRECTORY) {
+      config.publicDirectory = process.env.PUBLIC_DIRECTORY;
+    }
+    /* from command line */
+    if (configFromCommandLine && configFromCommandLine['public-directory']) {
+      config.publicDirectory = configFromCommandLine['public-directory'];
     }
   }
 
