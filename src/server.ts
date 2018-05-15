@@ -13,11 +13,11 @@ const logger = new Logger('server');
 
 
 export interface StartupConfig {
-  readonly configFilepath?: string;
-  readonly routers?: Routers;
-  readonly initSessionFunction?: (session: Express.Session) => void;
-  readonly middlewares?: RequestHandler[];
-  readonly publicDirectory?: string;
+  configFilepath?: string;
+  routers?: Routers;
+  initSessionFunction?: (session: Express.Session) => void;
+  middlewares?: RequestHandler[];
+  publicDirectory?: string;
 }
 
 
