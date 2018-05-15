@@ -3,6 +3,7 @@ fixtures
 node_modules/
 src/test
 test
+public/
 .clang-format
 .gitignore
 .npmignore
