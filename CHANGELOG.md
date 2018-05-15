@@ -1,5 +1,10 @@
 # ChangeLog
 
+## [15-05-2018] v1.0.1
+
+* update the readme
+
+
 ## [15-05-2018] v1.0.0
 
 * remove `node-env` support in configuration file (as it was prone to design weakness).
