@@ -1,4 +1,5 @@
 import * as commandLineArgs from 'command-line-args';
+import {RequestHandler} from 'express';
 import {existsSync, readFileSync} from 'fs';
 import {safeLoad} from 'js-yaml';
 
@@ -20,7 +21,9 @@ const defaultOptions: VcmsOptions = {
   DB_TYPE: 'pg',
 
   SESSION_REQUIRED: false,
-  REDIS_HOST: 'localhost:6379'
+  REDIS_HOST: 'localhost:6379',
+
+  publicDirectory: 'public'
 };
 
 export async function getConfig(
@@ -369,8 +372,32 @@ export async function getConfig(
             configFromCommandLine['session-cookie-domain'];
       }
     }
-  }
 
+
+    /*=======================
+     =   PUBLIC_DIRECTORY   =
+     =======================*/
+    if (true) {
+      /* from file */
+      if (configFromFile) {
+        if (configFromFile[config.NODE_ENV] &&
+            configFromFile[config.NODE_ENV]['public-directory']) {
+          config.publicDirectory =
+              configFromFile[config.NODE_ENV]['public-directory']
+        } else if (configFromFile['public-directory']) {
+          config.publicDirectory = configFromFile['public-directory']
+        }
+      }
+      /* from process.env */
+      if (process.env.PUBLIC_DIRECTORY) {
+        config.publicDirectory = process.env.PUBLIC_DIRECTORY;
+      }
+      /* from command line */
+      if (configFromCommandLine && configFromCommandLine['public-directory']) {
+        config.publicDirectory = configFromCommandLine['public-directory'];
+      }
+    }
+  }
 
   // we finally return the config
   return <VcmsOptions>config;
@@ -399,8 +426,11 @@ export interface VcmsWritableOptions {
   REDIS_HOST?: string;
   SESSION_COOKIE_DOMAIN?: string;
 
-  configFilepath?: string, routers?: Routers,
-      initSessionFunction?: (session: Express.Session) => void
+  configFilepath?: string;
+  routers?: Routers;
+  initSessionFunction?: (session: Express.Session) => void;
+  publicDirectory?: string;
+  middlewares?: RequestHandler[];
 }
 
 /**
@@ -450,6 +480,8 @@ export interface ConfigFileOptionsBase {
   session?: boolean;
   'redis-host'?: string;
   'session-cookie-domain'?: string;
+
+  'public-directory'?: string;
 }
 
 export interface CommandLineOptions {
@@ -461,4 +493,5 @@ export interface CommandLineOptions {
   'db-user'?: string;
   'redis-host'?: string;
   'session-cookie-domain'?: string;
+  'public-directory'?: string;
 }

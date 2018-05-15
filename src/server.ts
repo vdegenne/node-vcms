@@ -1,3 +1,4 @@
+import {RequestHandler} from 'express';
 import {createServer} from 'http';
 import {Model} from 'objection';
 
@@ -12,9 +13,13 @@ const logger = new Logger('server');
 
 
 export interface StartupConfig {
-  configFilepath?: string, routers?: Routers,
-      initSessionFunction?: (session: Express.Session) => void
+  readonly configFilepath?: string;
+  readonly routers?: Routers;
+  readonly initSessionFunction?: (session: Express.Session) => void;
+  readonly middlewares?: RequestHandler[];
+  readonly publicDirectory?: string;
 }
+
 
 export async function startServer(startupConfig?: StartupConfig):
     Promise<void> {

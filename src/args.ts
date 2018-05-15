@@ -58,6 +58,11 @@ const commandArgs: OptionDefinition[] = [
     description:
         'Domain of the Session cookie (e.g. ".example.com"). That option lets you exchange session data between application in the same domain scope',
     type: String
+  },
+  {
+    name: 'public-directory',
+    description: 'public directory for static files (default: public)',
+    type: String
   }
 ];
 

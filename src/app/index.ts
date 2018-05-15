@@ -21,7 +21,8 @@ export async function getApp(config: VcmsOptions):
   app.use(express.json());
   app.use(express.urlencoded({extended: true}));
 
-  app.use(express.static(process.cwd() + '/public'));
+  logger.log(`public directory is "/${config.publicDirectory}"`);
+  app.use(express.static(process.cwd() + '/' + config.publicDirectory));
 
 
   // session, before anything else
@@ -52,6 +53,15 @@ export async function getApp(config: VcmsOptions):
 
   // ping
   app.get('/ping', async (req, res) => res.send('pong\n'));
+
+
+  // register middlewares
+  if (config.middlewares) {
+    for (const mw of config.middlewares) {
+      logger.log(`Registering middleware ${mw}`);
+      app.use(mw);
+    }
+  }
 
   // routers
   for (const base in config.routers) {

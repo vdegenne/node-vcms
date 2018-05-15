@@ -11,7 +11,12 @@ const config = {
     if (!session.hello) {
       session.hello = 'hello world from session'
     }
-  }
+  },
+  middlewares: [(req, res, next) => {
+    console.log(`asking for ${req.url} (log from user-defined middleware)`);
+    next();
+  }],
+  publicDirectory: 'test'
 }
 
 // start the server

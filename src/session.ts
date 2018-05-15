@@ -24,7 +24,7 @@ export async function getSession(config: VcmsOptions): Promise<Session> {
   }
 
 
-  logger.info('Connected to redis.');
+  logger.success('Connected to redis.');
 
   const sessionOptions: Session.SessionOptions = {
     store: new RedisStore({client: redis}),

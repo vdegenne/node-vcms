@@ -37,7 +37,7 @@ export async function getDatabase(config: VcmsOptions): Promise<Knex> {
 
   // if the password in the configuration file is a hash
   if (config.DB_PASSWORD.substr(0, 5) === '{SHA}') {
-    logger.info('The password in the configuration file is encrypted.');
+    logger.error('The password in the configuration file is encrypted.');
 
     password = question(
         `Enter Database password for ${config.DB_USER}: `,

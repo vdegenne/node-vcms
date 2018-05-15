@@ -136,4 +136,10 @@ suite('Config', () => {
     // restore context
     if (originalNodeEnv) process.env.NODE_ENV = originalNodeEnv;
   });
+
+
+  test('changing the public directory', async () => {
+    let config = await run(['--public-directory', 'hello'], configFilepath);
+    expect(config.publicDirectory).to.equal('hello');
+  });
 });
