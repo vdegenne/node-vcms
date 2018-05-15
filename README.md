@@ -37,7 +37,7 @@ If it returns `pong` then it means the project has started successfully.
 So far the application is boring and just "ping/pong".
 The next step is to add some routes to your `vcms` application.  \
 `vcms` organises routes into groups of routes in files also called "routers".  \
-To demonstrate this type of organisational structure, let's create `greetings.router.js` at the root where you created `app.js` in the previous section, and paste this inside :
+To demonstrate this type of organisational structure, let's create `greetings.router.js` in the same directory where `app.js` is, with this content :
 
 ```javascript
 const {Router} = require('vcms');
@@ -57,16 +57,16 @@ router.get('/bye', async (req, res) => {
 module.exports = router;
 ```
 
-Now you have to tell your application to use this router (which provides 2 routes `/hello` and `/bye`).
+Now we have to tell our application to use this router (which provides 2 routes `/hello` and `/bye`).
 
 Modify `app.js` :
 
 ```javascript
 const {start} = require('vcms');
-const greetingsRouter = require('./greetings.router');
+
 
 const myrouters = {
-  '/greetings': greetingsRouter
+  '/greetings': require('./greetings.router')
 }
 
 start({
@@ -79,6 +79,37 @@ start({
 When you restart your application the routes `/greetings/hello` and `/greetings/bye` are reachable.
 
 (*note: When the number of routers grow up, it's good practice to place them in a so called `routers` directory*)
+
+### public directory
+
+The public directory is `/public` by default, you can override this using :
+
+```javascript
+start({
+  routers: myrouters,
+  publicDirectory: 'mypublic'
+});
+```
+
+### middlewares
+
+```javascript
+start({
+  ...
+  middlewares: [
+    (req, res, next) => {
+      console.log('hello from middleware');
+      next();
+    },
+    async (req, res, next) => {
+      console.log('another middlware');
+      next();
+    }
+  ]
+});
+```
+
+(*note: middlewares are executed before the routers*).
 
 
 ## Configuration
