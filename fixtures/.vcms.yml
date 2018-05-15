@@ -11,6 +11,3 @@ dev:
 prod:
   port: 8080
   pg-host: 1.2.3.4:5432
-
-
-node-env: dev

@@ -1,5 +1,5 @@
+port: 8000
 local-hostname: testapp.vdegenne.local
-port: 3000
 
 database: true
 
@@ -15,5 +15,4 @@ session-cookie-domain: .vdegenne.local
 prod:
   db-port: 5432
   session-cookie-domain: .vdegenne.com
-
-
+  public-directory: /public/build/default

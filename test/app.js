@@ -15,8 +15,7 @@ const config = {
   middlewares: [(req, res, next) => {
     console.log(`asking for ${req.url} (log from user-defined middleware)`);
     next();
-  }],
-  publicDirectory: 'test'
+  }]
 }
 
 // start the server

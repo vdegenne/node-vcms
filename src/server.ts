@@ -26,32 +26,42 @@ export async function startServer(startupConfig?: StartupConfig):
   logger.log('Initialising server...');
 
 
-  // get defaults & from-configuration-file configurations
-  let config: VcmsOptions = await getConfig(
-      (startupConfig && startupConfig.configFilepath) || undefined);
-
-  // merge and/or add startup configurations
-  if (startupConfig) {
-    config = Object.assign({}, config, startupConfig);
+  // prepare configFilepath
+  let configFilepath: string = process.cwd() + '/.vcms.yml';  // default
+  if (startupConfig.configFilepath) {
+    configFilepath = startupConfig.configFilepath;
   }
+  logger.log(`Configuration file at "${configFilepath}" will be used.`);
 
-  if (config.DATABASE_REQUIRED) {
-    try {
-      const database = await getDatabase(config);
-    } catch (e) {
-      process.exit(1);
+  try {
+    // get defaults & from-configuration-file configurations
+    let config: VcmsOptions = await getConfig(configFilepath);
+
+    // merge and/or add startup configurations
+    if (startupConfig) {
+      config = Object.assign({}, config, startupConfig);
     }
-  }
 
-  const app = await getApp(config);
-  const server = createServer(app);
+    if (config.DATABASE_REQUIRED) {
+      await getDatabase(config);
+    }
 
-  server.listen(config.PORT, () => {
-    logger.success(`Listening http://${config.LOCAL_HOSTNAME}:${config.PORT}`);
-  });
+    const app = await getApp(config);
+    const server = createServer(app);
 
-  server.on('error', async (e) => {
-    logger.error(e.message);
+    server.listen(config.PORT, () => {
+      logger.success(
+          `Listening http://${config.LOCAL_HOSTNAME}:${config.PORT}`);
+    });
+
+    server.on('error', async (e) => {
+      logger.error(e.message);
+      process.exit(1);
+    });
+
+
+  } catch (e) {
+    console.error('Something went wrong. exiting.');
     process.exit(1);
-  });
+  }
 }

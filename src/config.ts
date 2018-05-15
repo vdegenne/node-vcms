@@ -11,7 +11,7 @@ const logger = new Logger('config');
 
 /* defaults */
 const defaultOptions: VcmsOptions = {
-  NODE_ENV: 'production',
+  NODE_ENV: 'prod',
   PORT: 8000,
   LOCAL_HOSTNAME: 'localhost',
 
@@ -26,35 +26,33 @@ const defaultOptions: VcmsOptions = {
   publicDirectory: 'public'
 };
 
-export async function getConfig(
-    configFilepath: string =
-        process.cwd() + '/.vcms.yml'): Promise<VcmsOptions> {
+export async function getConfig(configFilepath: string): Promise<VcmsOptions> {
   const config: VcmsWritableOptions = Object.assign({}, defaultOptions);
 
   /* check if there is a configuration file */
   let configFromFile: ConfigFileOptions = undefined;
-  if (existsSync(configFilepath)) {
-    logger.log(`Using configuration file ${configFilepath}`);
-    configFromFile =
-        <ConfigFileOptions>safeLoad(readFileSync(configFilepath).toString());
+  if (configFilepath) {
+    if (existsSync(configFilepath)) {
+      configFromFile =
+          <ConfigFileOptions>safeLoad(readFileSync(configFilepath).toString());
+    } else {
+      const errorMsg = `Configuration file "${configFilepath}" not found.`;
+      logger.error(errorMsg);
+      throw new Error(errorMsg);
+    }
   }
 
   /*===========
    = NODE_ENV =
    ===========*/
   if (true) {
-    /* from file */
-    if (configFromFile && configFromFile['node-env']) {
-      config.NODE_ENV = configFromFile['node-env']
-    }
     /* from process.env */
     if (process.env.NODE_ENV &&
         ['test', 'dev', 'prod'].includes(process.env.NODE_ENV)) {
       config.NODE_ENV = process.env.NODE_ENV
     }
-    /* from command line */
-    /* TO IMPLEMENT */
   }
+  logger.info(`Is using NODE_ENV=${config.NODE_ENV}`);
 
   /* check for command-line options */
   const configFromCommandLine = commandLineArgs(commandArgs);

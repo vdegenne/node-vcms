@@ -44,9 +44,9 @@ suite('Config', () => {
   });
 
   test('config file takes precedence over defaults', async () => {
-    // default port is 8000, the port in the file is 3001 for dev
+    // default port is 8000, the port in the file is 8080 for dev
     const config = await run([], configFilepath);
-    expect(config.PORT).to.equal(3001);
+    expect(config.PORT).to.equal(8080);
   });
 
 
@@ -99,25 +99,6 @@ suite('Config', () => {
     process.env.NODE_ENV = originalNODE_ENV;  // restore context
   });
 
-
-
-  test('node-env in file influences the configuration', async () => {
-    // make sure NODE_ENV doesn't influence the configuration
-    const originalNodeEnv = process.env.NODE_ENV;  // save context
-
-    delete process.env.NODE_ENV;
-
-    // the default file has a "dev" node-env with port 3001
-    let config = await run([], configFilepath);
-    expect(config.PORT).to.equal(3001);
-
-    // same file, only node-env is set to "prod" with 8080 port
-    config = await run([], dirname(configFilepath) + '/.vcms-prod.yml');
-    expect(config.PORT).to.equal(8080);
-
-    // restore context
-    if (originalNodeEnv) process.env.NODE_ENV = originalNodeEnv;
-  });
 
 
   let TITLE =
