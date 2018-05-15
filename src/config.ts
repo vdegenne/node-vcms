@@ -26,7 +26,7 @@ const defaultOptions: VcmsOptions = {
   publicDirectory: 'public'
 };
 
-export async function getConfig(configFilepath: string): Promise<VcmsOptions> {
+export async function getConfig(configFilepath?: string): Promise<VcmsOptions> {
   const config: VcmsWritableOptions = Object.assign({}, defaultOptions);
 
   /* check if there is a configuration file */
