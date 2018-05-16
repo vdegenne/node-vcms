@@ -1,5 +1,9 @@
 # ChangeLog
 
+## [15-05-2018] v1.0.6
+
+* logging errors if any happens at start time.
+
 ## [15-05-2018] v1.0.1
 
 * update the readme
