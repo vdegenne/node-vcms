@@ -3,16 +3,17 @@ import {expect} from 'chai';
 import * as chaiAsPromised from 'chai-as-promised';
 
 
-import {getConfig as _getConfig, VcmsOptions} from '../config';
+import {VcmsOptions} from '../config';
 import {getDatabase} from '../database';
 import {displayAllLoggers} from '../logging';
 import Test from './models/Test';
+import {getConfig} from './util';
 
 
 chai.use(chaiAsPromised);
 const assert = chai.assert;
 
-const configFilepath = process.cwd() + '/fixtures/.vcms-db.yml';
+const defaultConfigFilepath = __dirname + '/../../fixtures/.vcms-db.yml';
 
 
 suite('Database', async () => {
@@ -23,23 +24,6 @@ suite('Database', async () => {
   suiteTeardown(() => {
     displayAllLoggers(false);
   });
-
-  async function getConfig(
-      configFilepath: string, args: string[]): Promise<VcmsOptions> {
-    // save originals
-    const originalArgv = process.argv;
-
-    // change the execution context
-    process.argv = ['node', 'app'].concat(args);
-
-    // run update
-    const config = await _getConfig(configFilepath);
-
-    // get back to the original context
-    process.argv = originalArgv;
-
-    return config;
-  };
 
 
 
@@ -60,7 +44,7 @@ suite('Database', async () => {
   let TEST = 'It connects to the local database and returns a Knex object';
   test(TEST, async () => {
     // with defaults
-    const config = await getConfig(configFilepath, []);
+    const config = await getConfig([], null, defaultConfigFilepath);
 
     return expect(basicRun(config)).not.to.be.rejected;
   });
@@ -69,7 +53,8 @@ suite('Database', async () => {
   TEST = 'Failing the connection with the database returns an Error';
   test(TEST, async () => {
     // fake port
-    const config = await getConfig(configFilepath, ['--db-port', '1234']);
+    const config =
+        await getConfig(['--db-port', '1234'], null, defaultConfigFilepath);
 
     return expect(basicRun(config)).to.be.rejected;
   });
@@ -78,7 +63,8 @@ suite('Database', async () => {
   TEST = 'A wrong configuration returns an appropriate Error';
   test(TEST, async () => {
     // fake user
-    const config = await getConfig(configFilepath, ['--db-user', 'fakeUser']);
+    const config =
+        await getConfig(['--db-user', 'fakeUser'], null, defaultConfigFilepath);
 
     return expect(basicRun(config))
         .to.be.rejectedWith(
@@ -89,7 +75,7 @@ suite('Database', async () => {
   TEST = 'A successful connection "activate" the models';
   test(TEST, async () => {
     // with defaults
-    const config = await getConfig(configFilepath, []);
+    const config = await getConfig([], null, defaultConfigFilepath);
 
     const runTest = new Promise<Test[]>(async (resolve, reject) => {
       try {

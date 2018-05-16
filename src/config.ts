@@ -6,11 +6,15 @@ import {safeLoad} from 'js-yaml';
 import {Routers} from './app';
 import commandArgs from './args';
 import {Logger} from './logging';
+import {StartupConfig} from './server';
+
 
 const logger = new Logger('config');
 
+
+
 /* defaults */
-const defaultOptions: VcmsOptions = {
+export const defaultOptions: VcmsOptions = {
   NODE_ENV: 'prod',
   PORT: 8000,
   LOCAL_HOSTNAME: 'localhost',
@@ -26,21 +30,84 @@ const defaultOptions: VcmsOptions = {
   publicDirectory: 'public'
 };
 
-export async function getConfig(configFilepath?: string): Promise<VcmsOptions> {
+
+export async function getConfig(
+    startupConfigScriptPath?: string,
+    configFilepath?: string): Promise<VcmsOptions> {
   const config: VcmsWritableOptions = Object.assign({}, defaultOptions);
 
-  /* check if there is a configuration file */
+
+  /* STARTUP CONFIGURATION SCRIPT FILE */
+  // let userDefinedStartupConfigFilepath = startupConfigScriptPath ? true :
+  // false;
+  if (startupConfigScriptPath === undefined) {  // resolving to default
+    const possiblePaths = [
+      process.cwd(), process.cwd() + '/build', process.cwd() + '/lib',
+      process.cwd() + '/test'
+    ];
+
+    const founds =
+        possiblePaths.filter(p => existsSync(p + '/startupconfig.js'));
+
+    if (founds.length) {
+      startupConfigScriptPath = founds[0] + '/startupconfig.js';
+    }
+  }
+
+  let startupconfig: StartupConfig = undefined;
+  if (startupConfigScriptPath) {
+    if (existsSync(startupConfigScriptPath)) {
+      logger.log(`Startup configuration script file resolved to "${
+          startupConfigScriptPath}".`);
+
+      startupconfig = require(startupConfigScriptPath).default;
+    } else {
+      const errMsg = `Startup configuration script "${
+          startupConfigScriptPath}" couldn't be found.`;
+      logger.error(errMsg);
+      // if (userDefinedStartupConfigFilepath) {  // throw an error if it was
+      // intentionally set
+      const error = new Error(errMsg);
+      error.name = 'config';
+      throw error;
+      // }
+    }
+  } else {
+    logger.info('!! No startup configuration script. Is it expected ?');
+  }
+
+  /* CONFIGURATION FILE */
+  let userDefinedConfigFilepath = configFilepath ? true : false;
+  if (configFilepath === undefined) {
+    // resolve to default
+    configFilepath = process.cwd() + '/.vcms.yml';
+    userDefinedConfigFilepath = false;
+  }
+  // the startup config script can specify the configuration filepath
+  if (startupconfig && startupconfig.configFilepath) {
+    configFilepath = startupconfig.configFilepath;
+    userDefinedConfigFilepath = true;
+  }
+
   let configFromFile: ConfigFileOptions = undefined;
   if (configFilepath) {
     if (existsSync(configFilepath)) {
+      logger.log(`Configuration file resolved to "${configFilepath}".`);
+
       configFromFile =
           <ConfigFileOptions>safeLoad(readFileSync(configFilepath).toString());
     } else {
-      const errorMsg = `Configuration file "${configFilepath}" not found.`;
-      logger.error(errorMsg);
-      throw new Error(errorMsg);
+      const errMsg =
+          `Configuration file "${configFilepath}" couldn't be found.`;
+      logger.error(errMsg);
+      if (userDefinedConfigFilepath) {
+        const error = new Error(errMsg);
+        error.name = 'config';
+        throw error;
+      }
     }
   }
+
 
   /*===========
    = NODE_ENV =
@@ -52,7 +119,7 @@ export async function getConfig(configFilepath?: string): Promise<VcmsOptions> {
       config.NODE_ENV = process.env.NODE_ENV
     }
   }
-  logger.info(`Is using NODE_ENV=${config.NODE_ENV}`);
+
 
   /* check for command-line options */
   const configFromCommandLine = commandLineArgs(commandArgs);
@@ -396,14 +463,17 @@ export async function getConfig(configFilepath?: string): Promise<VcmsOptions> {
     }
   }
 
+  // add startup configurations to the main configuration object
+  Object.assign(config, startupconfig);
+
   // we finally return the config
   return <VcmsOptions>config;
 }
 
 /**
  * Vcms Writable Options
- * use this interface with the defaultOptions object and to initialize a default
- * Object with restricted values
+ * use this interface with the defaultOptions object and to initialize a
+ * default Object with restricted values
  */
 export interface VcmsWritableOptions {
   NODE_ENV: string;

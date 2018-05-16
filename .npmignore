@@ -1,6 +1,10 @@
 .vscode
 fixtures
 node_modules/
+lib/test
+!lib/test/util.js
+!lib/test/util.d.ts
+!lib/test/util.js.map
 src/test
 test
 public/

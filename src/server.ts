@@ -21,26 +21,17 @@ export interface StartupConfig {
 }
 
 
-export async function startServer(startupConfig?: StartupConfig):
+export async function startServer(startupConfigFilepath?: string):
     Promise<void> {
   logger.log('Initialising server...');
 
 
-  // prepare configFilepath
-  let configFilepath: string = process.cwd() + '/.vcms.yml';  // default
-  if (startupConfig.configFilepath) {
-    configFilepath = startupConfig.configFilepath;
-  }
-  logger.log(`Configuration file at "${configFilepath}" will be used.`);
-
   try {
     // get defaults & from-configuration-file configurations
-    let config: VcmsOptions = await getConfig(configFilepath);
+    let config: VcmsOptions = await getConfig(startupConfigFilepath);
 
-    // merge and/or add startup configurations
-    if (startupConfig) {
-      config = Object.assign({}, config, startupConfig);
-    }
+    logger.info(`Using NODE_ENV=${config.NODE_ENV}`);
+
 
     if (config.DATABASE_REQUIRED) {
       await getDatabase(config);
@@ -61,7 +52,9 @@ export async function startServer(startupConfig?: StartupConfig):
 
 
   } catch (e) {
-    logger.error(e.message);
+    if (!['config'].includes(e.name)) {
+      logger.error(e.message);
+    }
     console.error('Something went wrong. exiting.');
     process.exit(1);
   }
