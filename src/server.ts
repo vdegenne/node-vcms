@@ -61,6 +61,7 @@ export async function startServer(startupConfig?: StartupConfig):
 
 
   } catch (e) {
+    logger.error(e.message);
     console.error('Something went wrong. exiting.');
     process.exit(1);
   }
