@@ -59,40 +59,38 @@ module.exports = router;
 
 Now we have to tell our application to use this router (which provides 2 routes `/hello` and `/bye`).
 
-Add `startupconfig.js` , and write the following :
+Let's create `startupconfig.js` , and write the following :
 
 ```javascript
-const {start} = require('vcms');
-
-start({
+exports.default = {
   routers: {
-    '/greetings': require('./greetings.router')
+    '/greetings': require('./greetings.router'),
   }
-});
+}
 ```
+
+It is important that the file is `startupconfig.js` here (or `startupconfig.ts` for typescript) because the framework tries to find this file in order to init the application. The `startupconfig.js` file is the first technique for configuration along with the `.vcms.yml` (see **Static configuration** section).
 
 When you restart your application the routes `/greetings/hello` and `/greetings/bye` should be accessibles.
 
 *note: When the number of routers grow up, it's good practice to place them in a so called `routers` directory and then write the app like :*
-```javascript
 
-start({
+```javascript
+module.exports = {
   routers: {
     '/greetings': require('./routers/greetings.router'),
     '/api/user': require('./routers/users.router'),
     '/api/articles': require('./routers/articles.router')
   }
-});
+}
 ```
-
-
 
 ### **middlewares**
 
 You can use middlewares if you need to perform actions before the routers are reached.
 
 ```javascript
-start({
+module.exports = {
   ...
   middlewares: [
     (req, res, next) => {
@@ -104,13 +102,26 @@ start({
       next();
     }
   ]
-});
+}
 ```
 
 (*note: middlewares are executed before the routers*).
 
+### **startupconfig.js**
 
-## Configuration
+Here are all the properties you can use to init the application :
+
+```javascript
+module.exports = {
+  configFilepath: ... // path to the static configuration file
+  initSessionFunction: ... // init the session object
+  middlewares: ... // middlewares
+  publicDirectory: ... // public directory
+  routers: ... // the application's routers
+}
+```
+
+## Static configuration
 
 One particularity of `vcms` is that it has a default state and this state can be customized almost entirely. There is three ways of modifying the state :
 

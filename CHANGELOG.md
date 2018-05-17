@@ -1,10 +1,13 @@
 # ChangeLog
 
+## [17-05-2018] v1.1.1
+
+* update readme
+
 ## [16-05-2018] v1.1.0
 
 * adding startup configuration script support.
 * adding `util` test module in npm libraries.
-* update readme
 
 ## [15-05-2018] v1.0.6
 
