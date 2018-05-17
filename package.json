@@ -1,6 +1,6 @@
 {
   "name": "vcms",
-  "version": "1.1.3",
+  "version": "1.1.4",
   "description": "a tiny node cms (express, objection, express-session/redis, and more)",
   "author": "Valentin Degenne <vdegenne@gmail.com>",
   "repository": "vdegenne/node-vcms",
