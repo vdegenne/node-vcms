@@ -59,7 +59,7 @@ module.exports = router;
 
 Now we have to tell our application to use this router (which provides 2 routes `/hello` and `/bye`).
 
-Modify `app.js` :
+Add `startupconfig.js` , and write the following :
 
 ```javascript
 const {start} = require('vcms');
