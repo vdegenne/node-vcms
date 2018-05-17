@@ -38,8 +38,8 @@ export async function getApp(config: VcmsOptions):
 
     // Session Initialisation Function
     if (config.initSessionFunction) {
-      app.use(async (req, res, next) => {
-        await config.initSessionFunction(req.session);
+      app.use((req, res, next) => {
+        config.initSessionFunction(req.session);
         next();
       });
     }

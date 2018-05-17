@@ -1,6 +1,10 @@
 # ChangeLog
 
-## [17-05-2018] v1.1.1
+## [17-05-2018] v1.1.3
+
+* fixes the asynchronous initSessionFunction Middleware.
+
+## [17-05-2018] v1.1.2
 
 * update readme
 
