@@ -528,8 +528,6 @@ export interface ConfigFileOptions extends ConfigFileOptionsBase {
   prod: ConfigFileOptionsBase;
   dev: ConfigFileOptionsBase;
   test: ConfigFileOptionsBase;
-
-  'node-env'?: string;
 }
 
 export interface ConfigFileOptionsBase {

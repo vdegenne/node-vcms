@@ -1,5 +1,10 @@
 # ChangeLog
 
+## [18-05-2018] v1.2.0
+
+* dissociate the initialisation of the session in the `getApp` function because it was not modular-proof and was clogging the tests.
+* update `README.md`
+
 ## [17-05-2018] v1.1.4
 
 * fixes the asynchronous initSessionFunction Middleware.

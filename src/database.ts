@@ -3,19 +3,18 @@ import * as Knex from 'knex';
 import {Model} from 'objection';
 import {question} from 'readline-sync';
 
-import {getConfig, VcmsOptions} from './config';
+import {VcmsOptions} from './config';
 import {Logger} from './logging';
 
 const logger = new Logger('database');
 
 export async function getDatabase(config: VcmsOptions): Promise<Knex> {
   logger.log('initialising database...');
-  let driver: string, knexDialect: string, url: string;
+  let knexDialect: string;
 
   // specific options
   switch (config.DB_TYPE) {
     case 'pg':
-      driver = 'postgres';
       knexDialect = 'pg';
   }
 

@@ -1,9 +1,8 @@
 import * as chai from 'chai';
 import * as chaiAsPromised from 'chai-as-promised';
 
-import {VcmsOptions} from '../config';
 import {displayAllLoggers} from '../logging';
-import {getSession, Session} from '../session';
+import {closeSession, getSession, Session} from '../redis-session';
 
 import {getConfig} from './util';
 
@@ -25,7 +24,7 @@ suite('SessionMiddleware', () => {
 
   teardown(() => {
     if (session) {
-      session.redis.quit();
+      closeSession(session);
     }
   });
 

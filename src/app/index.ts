@@ -3,7 +3,7 @@ import {Router} from 'express';
 
 import {getConfig, VcmsOptions} from '../config';
 import {Logger} from '../logging';
-import {getSession} from '../session';
+import {getSession, Session} from '../redis-session';
 
 
 const logger = new Logger('app');
@@ -14,8 +14,8 @@ export type Routers = {
 };
 
 
-export async function getApp(config: VcmsOptions):
-    Promise<express.Application> {
+export async function getApp(
+    config: VcmsOptions, session?: Session): Promise<express.Application> {
   const app = express();
 
   app.use(express.json());
@@ -26,20 +26,15 @@ export async function getApp(config: VcmsOptions):
 
 
   // session, before anything else
-  if (config.SESSION_REQUIRED) {
-    let session;
-    try {
-      session = await getSession(config);
-    } catch (e) {
-      throw e;
+  if (session) {
+    if (session.middleware) {
+      app.use(session.middleware);
     }
 
-    app.use(session.middleware);
-
     // Session Initialisation Function
-    if (config.initSessionFunction) {
+    if (session.initSessionFunction) {
       app.use((req, res, next) => {
-        config.initSessionFunction(req.session);
+        session.initSessionFunction(req.session);
         next();
       });
     }
