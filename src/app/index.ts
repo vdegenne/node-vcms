@@ -22,7 +22,7 @@ export async function getApp(
   app.use(express.urlencoded({extended: true}));
 
   logger.log(`public directory is "/${config.publicDirectory}"`);
-  app.use(express.static(process.cwd() + '/' + config.publicDirectory));
+  app.use('*', express.static(process.cwd() + '/' + config.publicDirectory));
 
 
   // session, before anything else
