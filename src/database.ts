@@ -35,7 +35,7 @@ export async function getDatabase(config: VcmsOptions): Promise<Knex> {
   }
 
   // if the password in the configuration file is a hash
-  if (config.DB_PASSWORD.substr(0, 5) === '{SHA}') {
+  if (password.substr(0, 5) === '{SHA}') {
     logger.error('The password in the configuration file is encrypted.');
 
     password = question(
@@ -44,10 +44,11 @@ export async function getDatabase(config: VcmsOptions): Promise<Knex> {
 
     const sha1 = createHash('sha1');
     sha1.update(password);
+
     if (sha1.digest('hex') !== config.DB_PASSWORD.substr(5)) {
-      const errorMsg = 'Password for database is incorrect';
-      logger.error(errorMsg);
-      throw new Error(errorMsg);
+      const err = new Error('Password for database is incorrect');
+      err.name = 'database';
+      throw err;
     }
   }
 

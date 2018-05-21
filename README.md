@@ -123,64 +123,47 @@ exports.default = {
 
 ## Static Configuration
 
-One particularity of `vcms` is that it has a default state and this state can be customized almost entirely. In the previous section we saw how to configure the application dynamically (say the behavior defined with some code). There is always a static way that offers more options. There is three ways of modifying the state statically :
+One particularity of `vcms` is that it has a default state and this state can be customized almost entirely.  \
+In the previous section we saw how to configure the application dynamically (say the behavior defined with some code). There is also a static way that offers more options. There is three ways of modifying the state statically :
 
 * using environment variables.
 * using a `.vcms.yml` configuration file.
 * using command-line arguments.
 
-The precedence is expressed in the order of the list above. For instance the command-line `--port` argument will override `port` property in the configuration file.
+The precedence is performed in the order of the list above. For instance the command-line `--port` argument will override `port` property in the configuration file.
 Here are the possible options :
 
-- **NODE ENVIRONMENT** :
-  - environment variable:  `NODE_ENV` (e.g. `NODE_ENV=dev`)
-  - *default*: `prod`
-  - *possible values*: `prod`, `dev` or `test`
-  - description: Only available as an environment variable. It is used to load environmental specific option from the configuration file (see *"Configuration file"* section)
+* using environement variables.
 
-- **PORT**:
-  - environment variable:   `PORT` (e.g. `PORT=8080`)
-  - configuration file:     `port` (e.g. `port: 8080`)
-  - command-line argument:  `--port` or `-p` (e.g. `-p 8080`)
-  - *default*: `8000`
-  - description: Listening port of the application.
+```bash
+# Command-Line Arguments
+node app.js --port/-p <number> \
+            --public-directory <string> \
+            --local-hostname/-h <string> \
+            --database/-d [ --db-type <string> \
+                            --db-host <string> \
+                            --db-port <number> \
+                            --db-name <string> \
+                            --db-user <string>
+                            --db-password <string> ] \
+            --session/-s [ --redis-host <string> ] \
+            --http2 [ --http2-key <string> \
+                      --http2-cert <string> ]
+```
 
-- **PUBLIC DIRECTORY**:
-  - environment variable:   `PUBLIC_DIRECTORY` (e.g. `PUBLIC_DIRECTORY=public/build/default`)
-  - configuration file:     `public-directory` (e.g. `public-directory: public/build/default`)
-  - command-line argument:  `--public-directory` (e.g. `--public-directory "public/build/default"`)
-  - *default*: `public`
-  - description: directory containing static files to serve.
 
-- **LOCAL HOSTNAME**:
-  - environment variable:   `LOCAL_HOSTNAME` (e.g. `LOCAL_HOSTNAME=myapp.mydomain.local`)
-  - configuration file:     `local-hostname` (e.g. `local-hostname: myapp.mydomain.local`)
-  - command-line argument:  `--local-hostname` or `-h` (e.g. `--local-hostname myapp.mydomain.local`)
-  - *default*: `localhost`
-  - description: Local hostname of your local application. It's recommended to use a hostname when using inter-domain cookies or proxy so informations can be shared between urls and applications.
+All properties are optionals. Between brackets are the properties that are specifics to the property before hand, for instance `--db-type` is only considered by the application if `--database` has been set.
 
-- **DATABASE**:
-  - environment variable:   `DATABASE_REQUIRED` (e.g. `DATABASE_REQUIRED=true`)
-  - configuration file:     `database` (e.g. `database: true`)
-  - command-line argument:  `--enable-database` or `-d` (e.g. `--enable-database`)
-  - *default*: `false`
-  - *possible values*: `true` or `false`
-  - description: Should activate the database support or not.
 
-- **SESSION**:
-  - environment variable:   `SESSION_REQUIRED` (e.g. `SESSION_REQUIRED=true`)
-  - configuration file:     `session` (e.g. `session: true`)
-  - command-line argument:  `--enable-session` or `-s` (e.g. `--enable-session`)
-  - *default*: `false`
-  - *possible values*: `true` or `false`
-  - description: Should activate the session support or not.
-
-- **SESSION COOKIE DOMAIN**:
-  - environment variable:   `SESSION_COOKIE_DOMAIN` (e.g. `SESSION_COOKIE_DOMAIN=.mydomain.local`)
-  - configuration file:     `session-cookie-domain` (e.g. `session-cookie-domain: .mydomain.local`)
-  - command-line argument:  `--session-cookie-domain` or `-s` (e.g. `--session-cookie-domain ".mydomain.local"`)
-  - *default*: `localhost`
-  - description: If the session support is activated, the main session cookie will use this domain for inter-domain session communication.
+| Name                  | Type      | Possible values       | Default     | Description                                                                                                                                                                       |
+|-----------------------|-----------|-----------------------|-------------|-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| Node Environment      | `string`  | `test`, `dev`, `prod` | `prod`      | Only available as an environmental variable. It is used to load environment-specific options from the configuration file (see *"Configuration File"* section).                    |
+| Port                  | `number`  | *                     | 8000        | Listening port of the application.                                                                                                                                                |
+| Public Directory      | `string`  | *                     | `public`    | Directory containing static files to serve.                                                                                                                                       |
+| Local Hostname        | `string`  | *                     | `localhost` | Local hostname of the local application. It's recommended to use a hostname when using inter-domain cookies or proxy so informations can be shared between urls and applications. |
+| Database              | `boolean` | `false`/`true`        | `false`     | Specify if the database support should be enabled or not.                                                                                                                         |
+| Session               | `boolean` | `false`/`true`        | `false`     | Specify if the session support should be enabled or not.                                                                                                                          |
+| Session Cookie Domain | `string`  | *                     | `localhost` | If the session support is enabled, the main session cookie will use this value as its accessibility scope.                                                                        |
 
 You also have :
 - **DB TYPE**, **DB HOST**, **DB PORT**, **DB NAME**, **DB USER**, **DB PASSWORD** ...when the database support is activated
@@ -206,6 +189,22 @@ prod:
   public-directory: public/build
 ```
 
+
+## Environmental Variables Equivalent
+
+```bash
+# Environmental Variables Version
+NODE_ENV
+PORT
+PUBLIC_DIRECTORY
+LOCAL_HOSTNAME
+DATABASE
+SESSION
+SESSION_COOKIE_DOMAIN
+HTTP2_REQUIRED
+HTTP2_KEY
+HTTP2_CERT
+```
 
 ## notes
 

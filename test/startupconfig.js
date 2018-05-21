@@ -10,8 +10,10 @@ exports.default = {
       session.hello = 'hello world from session'
     }
   },
-  middlewares: [(req, res, next) => {
-    console.log(`asking for ${req.url} (log from user-defined middleware)`);
-    next();
-  }]
+  middlewares: [
+    (req, res, next) => {
+      console.log(`asking for ${req.url} (log from user-defined middleware)`);
+      next();
+    }
+  ]
 };

@@ -15,6 +15,21 @@ const commandArgs: OptionDefinition[] = [
     type: String
   },
   {
+    name: 'http2',
+    description: 'Enable or not http2 (default: false).',
+    type: Boolean
+  },
+  {
+    name: 'http2-key',
+    description: 'Path to the https key if http2 is enabled.',
+    type: String
+  },
+  {
+    name: 'http2-cert',
+    description: ',Path to the https certificate if http2 is enabled.',
+    type: String
+  },
+  {
     name: 'enable-database',
     alias: 'd',
     description: 'Enable the database module',

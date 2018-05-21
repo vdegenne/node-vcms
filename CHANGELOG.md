@@ -1,5 +1,12 @@
 # ChangeLog
 
+## [21-05-2018] v1.3.0
+
+* Add http2 support (`http2`, `http2-key`, `http2-cert`).
+* Fix some minor bugs.
+* Update `README.md`.
+
+
 ## [18-05-2018] v1.2.0
 
 * dissociate the initialisation of the session in the `getApp` function because it was not modular-proof and was clogging the tests.

@@ -5,7 +5,7 @@ database: true
 
 db-port: 5432
 db-user: vcms_user
-db-password: '{SHA}5baa61e4c9b93f3f0682250b6cf8331b7ee68fd8'
+# db-password: '{SHA}5baa61e4c9b93f3f0682250b6cf8331b7ee68fd8'
 db-name: vcms_test
 
 session: true

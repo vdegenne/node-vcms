@@ -19,6 +19,10 @@ export const defaultOptions: VcmsOptions = {
   PORT: 8000,
   LOCAL_HOSTNAME: 'localhost',
 
+  HTTP2_REQUIRED: false,
+  HTTP2_KEY: './server.key',
+  HTTP2_CERT: './server.cert',
+
   DATABASE_REQUIRED: false,
   DB_HOST: 'localhost:5432',
 
@@ -122,7 +126,8 @@ export async function getConfig(
 
 
   /* check for command-line options */
-  const configFromCommandLine = commandLineArgs(commandArgs);
+  const configFromCommandLine: ConfigFileOptions = commandLineArgs(commandArgs);
+
 
   /*===========
    =   PORT   =
@@ -171,6 +176,28 @@ export async function getConfig(
       config.LOCAL_HOSTNAME = configFromCommandLine['local-hostname'];
     }
   }
+
+
+  /*====================
+   = HTTP2             =
+   ====================*/
+  loadProperty(
+      config, 'HTTP2_REQUIRED', 'http2', ['file', 'env', 'cmd'], configFromFile,
+      configFromCommandLine);
+
+  /*====================
+   = HTTP2 KEY         =
+   ====================*/
+  loadProperty(
+      config, 'HTTP2_KEY', 'http2-key', ['file', 'env', 'cmd'], configFromFile,
+      configFromCommandLine);
+
+  /*====================
+   = HTTP2 CERT        =
+   ====================*/
+  loadProperty(
+      config, 'HTTP2_CERT', 'http2-cert', ['file', 'env', 'cmd'],
+      configFromFile, configFromCommandLine);
 
 
 
@@ -275,7 +302,7 @@ export async function getConfig(
       }
       /* from command line */
       if (configFromCommandLine && configFromCommandLine['db-port']) {
-        config.DB_PORT = configFromCommandLine['db-port'];
+        config.DB_PORT = parseInt(configFromCommandLine['db-port']);
       }
     }
 
@@ -480,6 +507,10 @@ export interface VcmsWritableOptions {
   PORT: number;
   LOCAL_HOSTNAME: string;
 
+  HTTP2_REQUIRED: boolean;
+  HTTP2_KEY?: string;
+  HTTP2_CERT?: string;
+
   DATABASE_REQUIRED: boolean;
   DB_TYPE?: string;
   DB_HOST?: string;
@@ -510,6 +541,10 @@ export interface VcmsOptions extends VcmsWritableOptions {
   readonly PORT: number;
   readonly LOCAL_HOSTNAME: string;
 
+  readonly HTTP2_REQUIRED: boolean;
+  readonly HTTP2_KEY?: string;
+  readonly HTTP2_CERT?: string;
+
   readonly DATABASE_REQUIRED: boolean;
   readonly DB_TYPE?: string;
   readonly DB_HOST?: string;
@@ -534,6 +569,10 @@ export interface ConfigFileOptionsBase {
   port?: number;
   'local-hostname'?: string;
 
+  http2?: boolean;
+  'http2-key'?: string;
+  'http2-cert'?: string;
+
   database?: boolean;
   'db-type'?: string;
   'db-host'?: string;
@@ -552,6 +591,11 @@ export interface ConfigFileOptionsBase {
 export interface CommandLineOptions {
   port?: number;
   'local-hostname'?: string;
+
+  http2?: boolean;
+  'http2-key'?: string;
+  'http2-cert'?: string;
+
   'enable-database'?: boolean;
   'db-port'?: number;
   'db-name'?: string;
@@ -559,4 +603,32 @@ export interface CommandLineOptions {
   'redis-host'?: string;
   'session-cookie-domain'?: string;
   'public-directory'?: string;
+}
+
+
+
+function loadProperty(
+    config: VcmsWritableOptions, configPropertyName: string,
+    propertyName: string, from: string[] = ['file', 'env', 'cmd'],
+    configFromFile?: ConfigFileOptions,
+    configFromCommandLine?: ConfigFileOptions) {
+  /* from file */
+  if (from.includes('file') && configFromFile) {
+    if (configFromFile[config.NODE_ENV] &&
+        configFromFile[config.NODE_ENV][propertyName]) {
+      config[configPropertyName] = configFromFile[config.NODE_ENV][propertyName]
+    } else if (configFromFile[propertyName]) {
+      config[configPropertyName] = configFromFile[propertyName]
+    }
+  }
+
+  /* from process.env */
+  if (from.includes('env') && process.env[configPropertyName]) {
+    config[configPropertyName] = process.env[configPropertyName];
+  }
+  /* from command line */
+  if (from.includes('cmd') && configFromCommandLine &&
+      configFromCommandLine[propertyName]) {
+    config[configPropertyName] = configFromCommandLine[propertyName];
+  }
 }
