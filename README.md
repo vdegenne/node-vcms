@@ -85,7 +85,7 @@ exports.default = {
 }
 ```
 
-### **middlewares**
+## **middlewares**
 
 You can use middlewares if you need to perform actions before the routers are reached.
 
@@ -132,8 +132,6 @@ In the previous section we saw how to configure the application dynamically (say
 
 The precedence is performed in the order of the list above. For instance the command-line `--port` argument will override `port` property in the configuration file.
 Here are the possible options :
-
-* using environement variables.
 
 ```bash
 # Command-Line Arguments

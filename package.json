@@ -39,6 +39,7 @@
     "chai-as-promised": "^7.1.1",
     "clang-format": "^1.0.41-c",
     "command-line-args": "^5.0.2",
+    "compression": "^1.7.2",
     "connect-redis": "^3.3.3",
     "express": "^4.16.3",
     "express-session": "^1.15.6",
@@ -60,6 +61,7 @@
   },
   "typings": "./lib/vcms.d.ts",
   "devDependencies": {
+    "@types/compression": "^0.0.36",
     "@types/spdy": "^3.4.4"
   }
 }

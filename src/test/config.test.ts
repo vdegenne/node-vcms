@@ -23,7 +23,7 @@ suite('Config', () => {
   test('defaults', async () => {
     const config = await getConfig();
     expect(config.PORT).to.equal(8000);
-    expect(config.publicDirectory).to.equal('public');
+    expect(config.publics).to.deep.equal({'/': 'public'});
   });
 
   test('change port', async () => {
@@ -92,10 +92,9 @@ suite('Config', () => {
     }
   });
 
-
-  test('changing the public directory', async () => {
-    let config = await getConfig(
-        ['--public-directory', 'hello'], null, defaultConfigFilepath);
-    expect(config.publicDirectory).to.equal('hello');
+  test('publics is configurable from .vcms.yml file', async () => {
+    const config = await getConfig([], null, defaultConfigFilepath);
+    expect(config.publics)
+        .to.deep.equal({'/': 'public', '/another-public': 'public2'});
   });
 });

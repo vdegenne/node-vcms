@@ -1,5 +1,8 @@
 database: true
 session: true
+publics:
+  /: public
+  /another-public: public2
 
 port: 123
 

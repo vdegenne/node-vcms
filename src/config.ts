@@ -12,7 +12,6 @@ import {StartupConfig} from './server';
 const logger = new Logger('config');
 
 
-
 /* defaults */
 export const defaultOptions: VcmsOptions = {
   NODE_ENV: 'prod',
@@ -31,8 +30,9 @@ export const defaultOptions: VcmsOptions = {
   SESSION_REQUIRED: false,
   REDIS_HOST: 'localhost:6379',
 
-  publicDirectory: 'public'
+  publics: {'/': 'public'}
 };
+
 
 
 export async function getConfig(
@@ -126,7 +126,17 @@ export async function getConfig(
 
 
   /* check for command-line options */
-  const configFromCommandLine: ConfigFileOptions = commandLineArgs(commandArgs);
+  const configFromCommandLine: CommandLineOptions =
+      commandLineArgs(commandArgs);
+
+  // Config with a big C is the unification of all the configuration type
+  // objects.
+  const Config = {
+    config: config,
+    configFromFile: configFromFile,
+    configFromCommandLine: configFromCommandLine
+  }
+
 
 
   /*===========
@@ -181,23 +191,17 @@ export async function getConfig(
   /*====================
    = HTTP2             =
    ====================*/
-  loadProperty(
-      config, 'HTTP2_REQUIRED', 'http2', ['file', 'env', 'cmd'], configFromFile,
-      configFromCommandLine);
+  loadProperty('HTTP2_REQUIRED', 'http2', ['file', 'env', 'cmdline'], Config);
 
   /*====================
    = HTTP2 KEY         =
    ====================*/
-  loadProperty(
-      config, 'HTTP2_KEY', 'http2-key', ['file', 'env', 'cmd'], configFromFile,
-      configFromCommandLine);
+  loadProperty('HTTP2_KEY', 'http2-key', ['file', 'env', 'cmdline'], Config);
 
   /*====================
    = HTTP2 CERT        =
    ====================*/
-  loadProperty(
-      config, 'HTTP2_CERT', 'http2-cert', ['file', 'env', 'cmd'],
-      configFromFile, configFromCommandLine);
+  loadProperty('HTTP2_CERT', 'http2-cert', ['file', 'env', 'cmdline'], Config);
 
 
 
@@ -286,25 +290,7 @@ export async function getConfig(
     /*===========
      = DB_PORT  =
      ===========*/
-    if (true) {
-      /* from file */
-      if (configFromFile) {
-        if (configFromFile[config.NODE_ENV] &&
-            configFromFile[config.NODE_ENV]['db-port']) {
-          config.DB_PORT = configFromFile[config.NODE_ENV]['db-port']
-        } else if (configFromFile['db-port']) {
-          config.DB_PORT = parseInt(configFromFile['db-port']);
-        }
-      }
-      /* from process.env */
-      if (process.env.DB_PORT) {
-        config.DB_PORT = parseInt(process.env.DB_PORT);
-      }
-      /* from command line */
-      if (configFromCommandLine && configFromCommandLine['db-port']) {
-        config.DB_PORT = parseInt(configFromCommandLine['db-port']);
-      }
-    }
+    loadProperty('DB_PORT', 'db-port', ['file', 'env', 'cmdline'], Config);
 
     // if no DB_PORT was found, resolve based on the type
     if (!config.DB_PORT) {
@@ -467,28 +453,10 @@ export async function getConfig(
   }
 
   /*=======================
-   =   PUBLIC_DIRECTORY   =
+   =   publics            =
    =======================*/
-  if (true) {
-    /* from file */
-    if (configFromFile) {
-      if (configFromFile[config.NODE_ENV] &&
-          configFromFile[config.NODE_ENV]['public-directory']) {
-        config.publicDirectory =
-            configFromFile[config.NODE_ENV]['public-directory']
-      } else if (configFromFile['public-directory']) {
-        config.publicDirectory = configFromFile['public-directory']
-      }
-    }
-    /* from process.env */
-    if (process.env.PUBLIC_DIRECTORY) {
-      config.publicDirectory = process.env.PUBLIC_DIRECTORY;
-    }
-    /* from command line */
-    if (configFromCommandLine && configFromCommandLine['public-directory']) {
-      config.publicDirectory = configFromCommandLine['public-directory'];
-    }
-  }
+  loadProperty('publics', 'publics', ['file'], Config);
+
 
   // add startup configurations to the main configuration object
   Object.assign(config, startupconfig);
@@ -527,7 +495,7 @@ export interface VcmsWritableOptions {
   configFilepath?: string;
   routers?: Routers;
   initSessionFunction?: (session: Express.Session) => void;
-  publicDirectory?: string;
+  publics?: {[route: string]: string};
   middlewares?: RequestHandler[];
 }
 
@@ -559,11 +527,13 @@ export interface VcmsOptions extends VcmsWritableOptions {
   readonly SESSION_COOKIE_DOMAIN?: string;
 }
 
+
 export interface ConfigFileOptions extends ConfigFileOptionsBase {
   prod: ConfigFileOptionsBase;
   dev: ConfigFileOptionsBase;
   test: ConfigFileOptionsBase;
 }
+
 
 export interface ConfigFileOptionsBase {
   port?: number;
@@ -585,7 +555,7 @@ export interface ConfigFileOptionsBase {
   'redis-host'?: string;
   'session-cookie-domain'?: string;
 
-  'public-directory'?: string;
+  'publics'?: {[route: string]: string};
 }
 
 export interface CommandLineOptions {
@@ -602,33 +572,37 @@ export interface CommandLineOptions {
   'db-user'?: string;
   'redis-host'?: string;
   'session-cookie-domain'?: string;
-  'public-directory'?: string;
 }
 
 
 
 function loadProperty(
-    config: VcmsWritableOptions, configPropertyName: string,
-    propertyName: string, from: string[] = ['file', 'env', 'cmd'],
-    configFromFile?: ConfigFileOptions,
-    configFromCommandLine?: ConfigFileOptions) {
+    configPropertyName: string, propertyName: string,
+    from: string[] = ['file', 'env', 'cmdline'], Config: {
+      config: VcmsWritableOptions,
+      configFromFile: ConfigFileOptions,
+      configFromCommandLine: CommandLineOptions
+    }) {
   /* from file */
-  if (from.includes('file') && configFromFile) {
-    if (configFromFile[config.NODE_ENV] &&
-        configFromFile[config.NODE_ENV][propertyName]) {
-      config[configPropertyName] = configFromFile[config.NODE_ENV][propertyName]
-    } else if (configFromFile[propertyName]) {
-      config[configPropertyName] = configFromFile[propertyName]
+  if (from.includes('file') && Config.configFromFile) {
+    if (Config.configFromFile[Config.config.NODE_ENV] &&
+        Config.configFromFile[Config.config.NODE_ENV][propertyName]) {
+      Config.config[configPropertyName] =
+          Config.configFromFile[Config.config.NODE_ENV][propertyName]
+    } else if (Config.configFromFile[propertyName]) {
+      Config.config[configPropertyName] = Config.configFromFile[propertyName]
     }
   }
 
   /* from process.env */
   if (from.includes('env') && process.env[configPropertyName]) {
-    config[configPropertyName] = process.env[configPropertyName];
+    Config.config[configPropertyName] = process.env[configPropertyName];
   }
+
   /* from command line */
-  if (from.includes('cmd') && configFromCommandLine &&
-      configFromCommandLine[propertyName]) {
-    config[configPropertyName] = configFromCommandLine[propertyName];
+  if (from.includes('cmdline') && Config.configFromCommandLine &&
+      Config.configFromCommandLine[propertyName]) {
+    Config.config[configPropertyName] =
+        Config.configFromCommandLine[propertyName];
   }
 }

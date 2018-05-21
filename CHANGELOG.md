@@ -1,5 +1,11 @@
 # ChangeLog
 
+## [21-05-2018] v1.4.0
+
+* Improve the public directories support.
+* Add compression middleware.
+* Tidy `config.ts` a bit.
+
 ## [21-05-2018] v1.3.0
 
 * Add http2 support (`http2`, `http2-key`, `http2-cert`).

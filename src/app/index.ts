@@ -1,10 +1,10 @@
+import * as compression from 'compression';
 import * as express from 'express';
 import {Router} from 'express';
 
 import {getConfig, VcmsOptions} from '../config';
 import {Logger} from '../logging';
 import {getSession, Session} from '../redis-session';
-
 
 const logger = new Logger('app');
 
@@ -21,9 +21,7 @@ export async function getApp(
   app.use(express.json());
   app.use(express.urlencoded({extended: true}));
 
-  logger.log(`public directory is "/${config.publicDirectory}"`);
-  app.use('*', express.static(process.cwd() + '/' + config.publicDirectory));
-
+  app.use(compression());
 
   // session, before anything else
   if (session) {
@@ -62,6 +60,14 @@ export async function getApp(
   for (const base in config.routers) {
     logger.log(`Providing route "${base}"`);
     app.use(base, config.routers[base]);
+  }
+
+  // publics
+  if (config.publics && Object.keys(config.publics).length) {
+    for (const p in config.publics) {
+      logger.log(`Using public directory : "${p}" => "${config.publics[p]}"`);
+      app.use(p, express.static(process.cwd() + '/' + config.publics[p]));
+    }
   }
 
   return app;
