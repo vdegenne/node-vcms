@@ -74,8 +74,8 @@ function getRedisClient(config: VcmsOptions): Promise<RedisClient> {
   });
 }
 
-export async function closeSession(session: Session) {
-  session.connection.quit();
+export async function closeSession(Session: Session) {
+  Session.connection.quit();
 }
 
 

@@ -1,6 +1,8 @@
-import {RequestHandler} from 'express';
+import {Application, RequestHandler} from 'express';
 import {existsSync, readFileSync, writeFileSync} from 'fs';
 import {createServer} from 'http';
+import * as Knex from 'knex';
+import {Server} from 'net';
 import {createServer as createHttp2Server} from 'spdy';
 
 import {getApp, Routers} from './app';
@@ -15,6 +17,16 @@ import {Session} from './session';
 const logger = new Logger('server');
 
 
+
+export interface Structure {
+  server: Server;
+  database: Knex;
+  Session: Session;
+  app: Application;
+}
+
+
+
 export interface StartupConfig {
   configFilepath?: string;
   routers?: Routers;
@@ -22,6 +34,55 @@ export interface StartupConfig {
   middlewares?: RequestHandler[];
   publicDirectory?: string;
 }
+
+
+
+async function getStructure(config: VcmsOptions): Promise<Structure> {
+  const structure:
+      Structure = {server: null, database: null, Session: null, app: null};
+
+
+  logger.info(`Using NODE_ENV=${config.NODE_ENV}`);
+
+
+  // database
+  if (config.DATABASE_REQUIRED) {
+    structure.database = await getDatabase(config);
+  }
+
+  // session
+  if (config.SESSION_REQUIRED) {
+    structure.Session = await getSession(config);
+  }
+
+  // app (express)
+  structure.app = await getApp(config, structure.Session);
+
+
+  // server
+  if (config.HTTP2_REQUIRED) {
+    if (!existsSync(config.HTTP2_KEY)) {
+      throw new Error(`The key for the https server can't be found`);
+    }
+    if (!existsSync(config.HTTP2_CERT)) {
+      throw new Error(`The certificate for the https server can't be found`);
+    }
+
+    const options = {
+      key: readFileSync(config.HTTP2_KEY),
+      cert: readFileSync(config.HTTP2_CERT)
+    };
+
+    logger.log('Creating http2 server...');
+    structure.server = createHttp2Server(options, structure.app);
+  } else {
+    logger.log('Creating basic http server...');
+    structure.server = createServer(structure.app);
+  }
+
+  return structure;
+}
+
 
 
 export async function startServer(startupConfigFilepath?: string):
@@ -33,56 +94,25 @@ export async function startServer(startupConfigFilepath?: string):
     // get defaults & from-configuration-file configurations
     let config: VcmsOptions = await getConfig(startupConfigFilepath);
 
-    logger.info(`Using NODE_ENV=${config.NODE_ENV}`);
+    // get the structure of all the application/server
+    // only one dependency => the configuration object
+    const structure = await getStructure(config);
 
 
-    if (config.DATABASE_REQUIRED) {
-      await getDatabase(config);
-    }
-
-    let session: Session;
-    if (config.SESSION_REQUIRED) {
-      session = await getSession(config);
-    }
-
-    const app = await getApp(config, session);
-
-    let server;
-    if (config.HTTP2_REQUIRED) {
-      if (!existsSync(config.HTTP2_KEY)) {
-        throw new Error(`The key for the https server can't be found`);
-      }
-      if (!existsSync(config.HTTP2_CERT)) {
-        throw new Error(`The certificate for the https server can't be found`);
-      }
-
-      const options = {
-        key: readFileSync(config.HTTP2_KEY),
-        cert: readFileSync(config.HTTP2_CERT)
-      };
-
-      logger.log('Creating http2 server...');
-      server = createHttp2Server(options, app);
-    } else {
-      logger.log('Creating basic http server...');
-      server = createServer(app);
-    }
-
-
-    server.listen(config.PORT, (err: Error) => {
-      if (err) {
-        throw new Error(err.message);
+    structure.server.listen(config.PORT, (error: Error) => {
+      if (error) {
+        throw new Error(error.message);
       }
 
       logger.success(`Listening http${config.HTTP2_REQUIRED ? 's' : ''}://${
           config.LOCAL_HOSTNAME}:${config.PORT}`);
     });
 
+    // structure.server.on('error', async (e) => {
+    //   logger.error(e.message);
+    //   process.exit(1);
+    // });
 
-    server.on('error', async (e) => {
-      logger.error(e.message);
-      process.exit(1);
-    });
 
   } catch (e) {
     if (!['config', 'database'].includes(e.name)) {

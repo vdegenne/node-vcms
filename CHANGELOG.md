@@ -1,5 +1,9 @@
 # ChangeLog
 
+## [21-05-2018] v1.5.0
+
+* Structurify the server (see `server.ts` and `Structure` interface). Which eases the testing.
+
 ## [21-05-2018] v1.4.0
 
 * Improve the public directories support.

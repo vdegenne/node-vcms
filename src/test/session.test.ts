@@ -12,7 +12,7 @@ chai.use(chaiAsPromised);
 
 
 suite('SessionMiddleware', () => {
-  let session: Session;
+  let Session: Session;
 
   const debug = () => {
     displayAllLoggers();
@@ -22,30 +22,34 @@ suite('SessionMiddleware', () => {
     displayAllLoggers(false);
   });
 
+
   teardown(() => {
-    if (session) {
-      closeSession(session);
+    if (Session) {
+      closeSession(Session);
+      Session = null;
     }
   });
 
 
-  let title;
-  title = 'trying to connect to a non-existent redis host throw an error';
-  test(title, async () => {
-    const config =
-        await getConfig(['--enable-session', '--redis-host', 'localhost:6300']);
+  test(
+      'trying to connect to a non-existent redis host throw an error',
+      async () => {
+        const config = await getConfig(
+            ['--enable-session', '--redis-host', 'localhost:6300']);
 
-    return expect(getSession(config)).to.be.rejectedWith(/ECONNREFUSED/);
-  });
+        return expect(getSession(config)).to.be.rejectedWith(/ECONNREFUSED/);
+      });
 
 
-  title = 'connecting to an existent redis host returns a session middleware';
-  test(title, async () => {
-    const config = await getConfig(['--enable-session']);
 
-    const runTest = getSession(config);
-    session = await runTest;
+  test(
+      'connecting to an existent redis host returns a session middleware',
+      async () => {
+        const config = await getConfig(['--enable-session']);
 
-    return expect(runTest).not.to.be.rejected;
-  });
+        const runTest = getSession(config);
+        Session = await runTest;
+
+        return expect(runTest).not.to.be.rejected;
+      });
 });

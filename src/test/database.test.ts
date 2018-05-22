@@ -13,6 +13,7 @@ import {getConfig} from './util';
 chai.use(chaiAsPromised);
 const assert = chai.assert;
 
+
 const defaultConfigFilepath = __dirname + '/../../fixtures/.vcms-db.yml';
 
 
@@ -41,27 +42,28 @@ suite('Database', async () => {
 
 
 
-  let TEST = 'It connects to the local database and returns a Knex object';
-  test(TEST, async () => {
-    // with defaults
-    const config = await getConfig([], null, defaultConfigFilepath);
+  test(
+      'It connects to the local database and returns a Knex object',
+      async () => {
+        // with defaults
+        const config = await getConfig([], null, defaultConfigFilepath);
 
-    return expect(basicRun(config)).not.to.be.rejected;
-  });
-
-
-  TEST = 'Failing the connection with the database returns an Error';
-  test(TEST, async () => {
-    // fake port
-    const config =
-        await getConfig(['--db-port', '1234'], null, defaultConfigFilepath);
-
-    return expect(basicRun(config)).to.be.rejected;
-  });
+        return expect(basicRun(config)).not.to.be.rejected;
+      });
 
 
-  TEST = 'A wrong configuration returns an appropriate Error';
-  test(TEST, async () => {
+  test(
+      'Failing the connection with the database returns an Error', async () => {
+        // fake port
+        const config =
+            await getConfig(['--db-port', '1234'], null, defaultConfigFilepath);
+
+        return expect(basicRun(config)).to.be.rejected;
+      });
+
+
+
+  test('A wrong configuration returns an appropriate Error', async () => {
     // fake user
     const config =
         await getConfig(['--db-user', 'fakeUser'], null, defaultConfigFilepath);
@@ -72,8 +74,8 @@ suite('Database', async () => {
   });
 
 
-  TEST = 'A successful connection "activate" the models';
-  test(TEST, async () => {
+
+  test('A successful connection "activate" the models', async () => {
     // with defaults
     const config = await getConfig([], null, defaultConfigFilepath);
 
