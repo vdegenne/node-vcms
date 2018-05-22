@@ -1,6 +1,6 @@
 # ChangeLog
 
-## [21-05-2018] v1.5.0
+## [21-05-2018] v1.5.1
 
 * Structurify the server (see `server.ts` and `Structure` interface). Which eases the testing.
 

@@ -37,7 +37,7 @@ export interface StartupConfig {
 
 
 
-async function getStructure(config: VcmsOptions): Promise<Structure> {
+export async function getStructure(config: VcmsOptions): Promise<Structure> {
   const structure:
       Structure = {server: null, database: null, Session: null, app: null};
 
@@ -60,6 +60,18 @@ async function getStructure(config: VcmsOptions): Promise<Structure> {
 
 
   // server
+  structure.server = await getServer(config, structure.app);
+
+
+  return structure;
+}
+
+
+
+export async function getServer(
+    config: VcmsOptions, app: Application): Promise<Server> {
+  let server: Server;
+
   if (config.HTTP2_REQUIRED) {
     if (!existsSync(config.HTTP2_KEY)) {
       throw new Error(`The key for the https server can't be found`);
@@ -74,25 +86,28 @@ async function getStructure(config: VcmsOptions): Promise<Structure> {
     };
 
     logger.log('Creating http2 server...');
-    structure.server = createHttp2Server(options, structure.app);
+    server = createHttp2Server(options, app);
   } else {
     logger.log('Creating basic http server...');
-    structure.server = createServer(structure.app);
+    server = createServer(app);
   }
 
-  return structure;
+  return server;
 }
 
 
 
-export async function startServer(startupConfigFilepath?: string):
-    Promise<void> {
+/**
+ * @param {string} startupFilepath entrypoint configuration script path.
+ *    This script lets you define all the dynamic configuration of your
+ *    application, e.g. the routers, the middlewares, the path to a static
+ *    configuration file, ...
+ */
+export async function startServer(startupFilepath?: string) {
   logger.log('Initialising server...');
-
-
   try {
     // get defaults & from-configuration-file configurations
-    let config: VcmsOptions = await getConfig(startupConfigFilepath);
+    let config: VcmsOptions = await getConfig(startupFilepath);
 
     // get the structure of all the application/server
     // only one dependency => the configuration object
@@ -118,6 +133,7 @@ export async function startServer(startupConfigFilepath?: string):
     if (!['config', 'database'].includes(e.name)) {
       logger.error(e.message);
     }
+
     console.error('Something went wrong. exiting.');
     process.exit(1);
   }
