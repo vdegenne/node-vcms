@@ -1,8 +1,9 @@
 # ChangeLog
 
-## [21-05-2018] v1.5.1
+## [21-05-2018] v1.5.2
 
 * Structurify the server (see `server.ts` and `Structure` interface). Which eases the testing.
+* Add `destroyStructure` function to gracefully close the connections and nullify the structure.
 
 ## [21-05-2018] v1.4.0
 

@@ -67,6 +67,24 @@ export async function getStructure(config: VcmsOptions): Promise<Structure> {
 }
 
 
+export async function destroyStructure(structure: Structure) {
+  // close the database
+  if (structure.database) {
+    await structure.database.destroy();
+  }
+  // close the session
+  if (structure.Session.connection) {
+    switch (structure.Session.type) {
+      case 'redis':
+        await structure.Session.connection.quit();
+        break;
+      default:
+        logger.log('session type unknown');
+    }
+  }
+  structure = null;
+}
+
 
 export async function getServer(
     config: VcmsOptions, app: Application): Promise<Server> {
