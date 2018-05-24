@@ -73,7 +73,7 @@ export async function destroyStructure(structure: Structure) {
     await structure.database.destroy();
   }
   // close the session
-  if (structure.Session.connection) {
+  if (structure.Session && structure.Session.connection) {
     switch (structure.Session.type) {
       case 'redis':
         await structure.Session.connection.quit();
