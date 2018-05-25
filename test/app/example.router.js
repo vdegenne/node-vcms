@@ -1,4 +1,4 @@
-const {Router} = require('../lib/vcms');
+const {Router} = require('../../lib/vcms');
 
 const router = Router();
 

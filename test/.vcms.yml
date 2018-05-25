@@ -1,25 +1,16 @@
-port: 8000
-local-hostname: testapp.vdegenne.local
-
-publics:
-  - route: '/'
-    serve: public
-
-
 database: true
-
-db-port: 5432
-db-user: vcms_user
-# db-password: '{SHA}5baa61e4c9b93f3f0682250b6cf8331b7ee68fd8'
-db-name: vcms_test
-
 session: true
-session-cookie-domain: .vdegenne.local
+publics:
+  - route: /
+    serve: public
+  - route: /\/test/
+    serve: public/test
 
+port: 123
+
+test:
+  # no config for test
 
 prod:
-  db-port: 5432
-  session-cookie-domain: .vdegenne.com
-  publics:
-    - route: '/'
-      serve: public/build/es6-bundled
+  port: 8080
+  pg-host: 1.2.3.4:5432

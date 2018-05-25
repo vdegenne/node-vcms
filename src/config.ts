@@ -6,29 +6,29 @@ import {safeLoad} from 'js-yaml';
 import {Routers} from './app';
 import commandArgs from './args';
 import {Logger} from './logging';
-import {StartupConfig} from './server';
 
 
 const logger = new Logger('config');
 
+export type StartupFunction = (config: VcmsOptions) =>
+    Promise<VcmsOptions>|VcmsOptions
 
 /* defaults */
 export const defaultOptions: VcmsOptions = {
-  NODE_ENV: 'prod',
-  PORT: 8000,
-  LOCAL_HOSTNAME: 'localhost',
+  node_env: 'prod',
+  port: 8000,
+  local_hostname: 'localhost',
 
-  HTTP2_REQUIRED: false,
-  HTTP2_KEY: './server.key',
-  HTTP2_CERT: './server.cert',
+  http2_required: false,
+  http2_key: './server.key',
+  http2_cert: './server.crt',
 
-  DATABASE_REQUIRED: false,
-  DB_HOST: 'localhost:5432',
+  database_required: false,
+  db_host: 'localhost:5432',
+  db_type: 'pg',
 
-  DB_TYPE: 'pg',
-
-  SESSION_REQUIRED: false,
-  REDIS_HOST: 'localhost:6379'
+  session_required: false,
+  redis_host: 'localhost:6379'
 };
 
 
@@ -36,12 +36,19 @@ export const defaultOptions: VcmsOptions = {
 export async function getConfig(
     startupConfigScriptPath?: string,
     configFilepath?: string): Promise<VcmsOptions> {
-  const config: VcmsWritableOptions = Object.assign({}, defaultOptions);
+  let config: VcmsOptions = Object.assign({}, defaultOptions);
+
+  /*===========
+   = NODE_ENV =
+   ===========*/
+  /* from process.env */
+  if (process.env.NODE_ENV &&
+      ['test', 'dev', 'prod'].includes(process.env.NODE_ENV)) {
+    config.node_env = process.env.NODE_ENV
+  }
 
 
   /* STARTUP CONFIGURATION SCRIPT FILE */
-  // let userDefinedStartupConfigFilepath = startupConfigScriptPath ? true :
-  // false;
   if (startupConfigScriptPath === undefined) {  // resolving to default
     const possiblePaths = [
       process.cwd(),
@@ -58,23 +65,28 @@ export async function getConfig(
     }
   }
 
-  let startupconfig: StartupConfig = undefined;
+  let startupconfig: VcmsOptions = undefined;
   if (startupConfigScriptPath) {
     if (existsSync(startupConfigScriptPath)) {
       logger.log(`Startup configuration script file resolved to "${
           startupConfigScriptPath}".`);
 
-      startupconfig = require(startupConfigScriptPath).default;
+      const startupfunction: StartupFunction =
+          require(startupConfigScriptPath).default;
+
+      if (typeof startupfunction !== 'function')
+        throwError(
+            'the startup script needs to export a function as the default');
+
+      startupconfig = await startupfunction(config);
+
     } else {
       const errMsg = `Startup configuration script "${
           startupConfigScriptPath}" couldn't be found.`;
       logger.error(errMsg);
-      // if (userDefinedStartupConfigFilepath) {  // throw an error if it was
-      // intentionally set
       const error = new Error(errMsg);
       error.name = 'config';
       throw error;
-      // }
     }
   } else {
     logger.info('!! No startup configuration script. Is it expected ?');
@@ -113,349 +125,222 @@ export async function getConfig(
   }
 
 
-  /*===========
-   = NODE_ENV =
-   ===========*/
-  if (true) {
-    /* from process.env */
-    if (process.env.NODE_ENV &&
-        ['test', 'dev', 'prod'].includes(process.env.NODE_ENV)) {
-      config.NODE_ENV = process.env.NODE_ENV
-    }
-  }
-
-
   /* check for command-line options */
   const configFromCommandLine: CommandLineOptions =
       commandLineArgs(commandArgs);
-
-  // Config with a big C is the unification of all the configuration type
-  // objects.
-  const Config = {
-    config: config,
-    configFromFile: configFromFile,
-    configFromCommandLine: configFromCommandLine
-  }
-
 
 
   /*===========
    =   PORT   =
    ===========*/
-  if (true) {
-    /* from file */
-    if (configFromFile) {
-      if (configFromFile[config.NODE_ENV] &&
-          configFromFile[config.NODE_ENV].port) {
-        config.PORT = configFromFile[config.NODE_ENV].port
-      } else if (configFromFile.port) {
-        config.PORT = configFromFile.port
-      }
-    }
-    /* from process.env */
-    if (process.env.PORT) {
-      config.PORT = parseInt(process.env.PORT);
-    }
-    /* from command line */
-    if (configFromCommandLine && configFromCommandLine.port) {
-      config.PORT = configFromCommandLine.port;
-    }
-  }
-
+  loadOption(
+      'port',
+      {
+        file: {src: configFromFile, name: 'port', type: 'integer'},
+        env: {src: process.env, name: 'PORT', type: 'integer'},
+        cmdline: {src: configFromCommandLine, name: 'port'}
+      },
+      config);
 
   /*=====================
    =   LOCAL_HOSTNAME   =
    =====================*/
-  if (true) {
-    /* from file */
-    if (configFromFile) {
-      if (configFromFile[config.NODE_ENV] &&
-          configFromFile[config.NODE_ENV]['local-hostname']) {
-        config.LOCAL_HOSTNAME =
-            configFromFile[config.NODE_ENV]['local-hostname']
-      } else if (configFromFile['local-hostname']) {
-        config.LOCAL_HOSTNAME = configFromFile['local-hostname']
-      }
-    }
-    /* from process.env */
-    if (process.env.LOCAL_HOSTNAME) {
-      config.LOCAL_HOSTNAME = process.env.LOCAL_HOSTNAME;
-    }
-    /* from command line */
-    if (configFromCommandLine && configFromCommandLine['local-hostname']) {
-      config.LOCAL_HOSTNAME = configFromCommandLine['local-hostname'];
-    }
-  }
+  loadOption(
+      'local_hostname',
+      {
+        file: {src: configFromFile, name: 'local-hostname'},
+        env: {src: process.env, name: 'LOCAL_HOSTNAME'},
+        cmdline: {src: configFromCommandLine, name: 'local-hostname'}
+      },
+      config);
 
 
   /*====================
    = HTTP2             =
    ====================*/
-  loadProperty('HTTP2_REQUIRED', 'http2', ['file', 'env', 'cmdline'], Config);
-
-  /*====================
-   = HTTP2 KEY         =
-   ====================*/
-  loadProperty('HTTP2_KEY', 'http2-key', ['file', 'env', 'cmdline'], Config);
+  loadOption(
+      'http2_required',
+      {
+        file: {src: configFromFile, name: 'http2'},
+        env: {src: process.env, name: 'HTTP2_REQUIRED', type: 'boolean'},
+        cmdline: {src: configFromCommandLine, name: 'http2'}
+      },
+      config);
 
   /*====================
    = HTTP2 CERT        =
    ====================*/
-  loadProperty('HTTP2_CERT', 'http2-cert', ['file', 'env', 'cmdline'], Config);
+  loadOption(
+      'http2_cert',
+      {
+        file: {src: configFromFile, name: 'http2-cert'},
+        env: {src: process.env, name: 'HTTP2_CERT'},
+        cmdline: {src: configFromCommandLine, name: 'http2-cert'}
+      },
+      config);
+
+
+
+  /*====================
+   = HTTP2 KEY         =
+   ====================*/
+  loadOption(
+      'http2_key',
+      {
+        file: {src: configFromFile, name: 'http2-key'},
+        env: {src: process.env, name: 'HTTP2_KEY'},
+        cmdline: {src: configFromCommandLine, name: 'http2-key'}
+      },
+      config);
 
 
 
   /*====================
    = DATABASE_REQUIRED =
    ====================*/
-  if (true) {
-    /* from file */
-    if (configFromFile) {
-      if (configFromFile[config.NODE_ENV] &&
-          configFromFile[config.NODE_ENV].database) {
-        config.DATABASE_REQUIRED = configFromFile[config.NODE_ENV].database
-      } else if (configFromFile.database) {
-        config.DATABASE_REQUIRED = configFromFile.database
-      }
-    }
-    /* from process.env */
-    if (process.env.DATABASE_REQUIRED) {
-      config.DATABASE_REQUIRED =
-          process.env.DATABASE_REQUIRED.toLowerCase() === 'true' ? true : false;
-    }
-    /* from command line */
-    if (configFromCommandLine && configFromCommandLine['enable-database']) {
-      config.DATABASE_REQUIRED = configFromCommandLine['enable-database'];
-    }
-  }
+  loadOption(
+      'database_required',
+      {
+        file: {src: configFromFile, name: 'database'},
+        env: {src: process.env, name: 'DATABASE_REQUIRED', type: 'boolean'},
+        cmdline: {src: configFromCommandLine, name: 'enable-database'}
+      },
+      config);
 
   // in case the database is required
-  if (config.DATABASE_REQUIRED) {
+  if (config.database_required) {
     /*===========
      = DB_TYPE  =
      ===========*/
-    if (true) {
-      /* from file */
-      if (configFromFile) {
-        if (configFromFile[config.NODE_ENV] &&
-            configFromFile[config.NODE_ENV]['db-type']) {
-          config.DB_TYPE = configFromFile[config.NODE_ENV]['db-type']
-        } else if (configFromFile['db-type']) {
-          config.DB_TYPE = configFromFile['db-type'];
-        }
-      }
-      /* from process.env */
-      if (process.env.DB_TYPE) {
-        config.DB_TYPE = process.env.DB_TYPE;
-      }
-      /* from command line */
-      /* TO IMPLEMENT */
-    }
+    loadOption(
+        'db_type',
+        {
+          file: {src: configFromFile, name: 'db-type'},
+          env: {src: process.env, name: 'DB_TYPE'}
+          // to implement command-line
+        },
+        config);
 
     /*===========
      = DB_HOST  =
      ===========*/
-    if (true) {
-      /* from file */
-      if (configFromFile) {
-        if (configFromFile[config.NODE_ENV] &&
-            configFromFile[config.NODE_ENV]['db-host']) {
-          config.DB_HOST = configFromFile[config.NODE_ENV]['db-host']
-        } else if (configFromFile['db-host']) {
-          config.DB_HOST = configFromFile['db-host']
-        }
-      }
-      /* from process.env */
-      if (process.env.DB_HOST) {
-        if (process.env.DB_HOST === 'DOCKER_HOST') {
-          if (!process.env.DOCKER_HOST) {
-            throw new Error('DOCKER_HOST is not defined.');
-          }
-          config.DB_HOST = process.env.DOCKER_HOST
-        } else {
-          config.DB_HOST = process.env.DB_HOST;
-        }
-      }
-      /* from command line */
-      /* TO IMPLEMENT */
-    }
+    loadOption(
+        'db_host',
+        {
+          file: {src: configFromFile, name: 'db-host'},
+          env: {src: process.env, name: 'DB_HOST'}
+          // to implement command-line
+        },
+        config);
 
     // format DB_HOST in case it contains the port
-    if (config.DB_HOST.indexOf(':') > -1) {
-      const dbHostParts = config.DB_HOST.split(':');
-      config.DB_HOST = dbHostParts[0];
-      config.DB_PORT = parseInt(dbHostParts[1]);
+    if (config.db_host.indexOf(':') > -1) {
+      const dbHostParts = config.db_host.split(':');
+      config.db_host = dbHostParts[0];
+      config.db_port = parseInt(dbHostParts[1]);
     }
 
     /*===========
      = DB_PORT  =
      ===========*/
-    loadProperty('DB_PORT', 'db-port', ['file', 'env', 'cmdline'], Config);
+    loadOption(
+        'db_port',
+        {
+          file: {src: configFromFile, name: 'db-port'},
+          env: {src: process.env, name: 'DB_PORT'},
+          cmdline: {src: configFromCommandLine, name: 'db-port'}
+        },
+        config);
 
     // if no DB_PORT was found, resolve based on the type
-    if (!config.DB_PORT) {
-      switch (config.DB_TYPE) {
+    if (!config.db_port) {
+      switch (config.db_type) {
         case 'pg':
-          config.DB_PORT = 5432;
+          config.db_port = 5432;
       }
     }
 
     /*===========
      = DB_NAME  =
      ===========*/
-    if (true) {
-      /* from file */
-      if (configFromFile) {
-        if (configFromFile[config.NODE_ENV] &&
-            configFromFile[config.NODE_ENV]['db-name']) {
-          config.DB_NAME = configFromFile[config.NODE_ENV]['db-name']
-        } else if (configFromFile['db-name']) {
-          config.DB_NAME = configFromFile['db-name'];
-        }
-      }
-      /* from process.env */
-      if (process.env.DB_NAME) {
-        config.DB_NAME = process.env.DB_NAME;
-      }
-      /* from command line */
-      if (configFromCommandLine && configFromCommandLine['db-name']) {
-        config.DB_NAME = configFromCommandLine['db-name'];
-      }
-    }
+    loadOption(
+        'db_name',
+        {
+          file: {src: configFromFile, name: 'db-name'},
+          env: {src: process.env, name: 'DB_NAME'},
+          cmdline: {src: configFromCommandLine, name: 'db-name'}
+        },
+        config);
 
     /*===========
      = DB_USER  =
      ===========*/
-    if (true) {
-      /* from file */
-      if (configFromFile) {
-        if (configFromFile[config.NODE_ENV] &&
-            configFromFile[config.NODE_ENV]['db-user']) {
-          config.DB_USER = configFromFile[config.NODE_ENV]['db-user']
-        } else if (configFromFile['db-user']) {
-          config.DB_USER = configFromFile['db-user'];
-        }
-      }
-      /* from process.env */
-      if (process.env.DB_USER) {
-        config.DB_USER = process.env.DB_USER;
-      }
-      /* from command line */
-      if (configFromCommandLine && configFromCommandLine['db-user']) {
-        config.DB_USER = configFromCommandLine['db-user'];
-      }
-    }
+    loadOption(
+        'db_user',
+        {
+          file: {src: configFromFile, name: 'db-user'},
+          env: {src: process.env, name: 'DB_USER'},
+          cmdline: {src: configFromCommandLine, name: 'db-user'}
+        },
+        config);
 
     /*===============
      = DB_PASSWORD  =
      ===============*/
-    if (true) {
-      /* from file */
-      if (configFromFile) {
-        if (configFromFile[config.NODE_ENV] &&
-            configFromFile[config.NODE_ENV]['db-password']) {
-          config.DB_PASSWORD = configFromFile[config.NODE_ENV]['db-password']
-        } else if (configFromFile['db-password']) {
-          config.DB_PASSWORD = configFromFile['db-password'];
-        }
-      }
-      /* from process.env */
-      if (process.env.DB_PASSWORD) {
-        config.DB_PASSWORD = process.env.DB_PASSWORD;
-      }
-      /* from command line */
-      /* TO IMPLEMENT */
-    }
+    loadOption(
+        'db_password',
+        {
+          file: {src: configFromFile, name: 'db-password'},
+          env: {src: process.env, name: 'DB_PASSWORD'},
+          // to implement command-line
+        },
+        config);
   }
 
   /*===================
    = SESSION_REQUIRED =
    ===================*/
-  if (true) {
-    /* from file */
-    if (configFromFile) {
-      if (configFromFile[config.NODE_ENV] &&
-          configFromFile[config.NODE_ENV].session) {
-        config.SESSION_REQUIRED = configFromFile[config.NODE_ENV].session
-      } else if (configFromFile.session) {
-        config.SESSION_REQUIRED = configFromFile.session
-      }
-    }
-    /* from process.env */
-    if (process.env.SESSION_REQUIRED) {
-      config.SESSION_REQUIRED =
-          process.env.SESSION_REQUIRED.toLowerCase() === 'true' ? true : false;
-    }
-    /* from command line */
-    if (configFromCommandLine && configFromCommandLine['enable-session']) {
-      config.SESSION_REQUIRED = configFromCommandLine['enable-session'];
-    }
-  }
+  loadOption(
+      'session_required',
+      {
+        file: {src: configFromFile, name: 'session'},
+        env: {src: process.env, name: 'SESSION_REQUIRED', type: 'boolean'},
+        cmdline: {src: configFromCommandLine, name: 'enable-session'}
+      },
+      config);
 
   // if session is required, specific options
-  if (config.SESSION_REQUIRED) {
+  if (config.session_required) {
     /*=============
      = REDIS_HOST =
      =============*/
-    if (true) {
-      /* from file */
-      if (configFromFile) {
-        if (configFromFile[config.NODE_ENV] &&
-            configFromFile[config.NODE_ENV]['redis-host']) {
-          config.REDIS_HOST = configFromFile[config.NODE_ENV]['redis-host']
-        } else if (configFromFile['redis-host']) {
-          config.REDIS_HOST = configFromFile['redis-host']
-        }
-      }
-      /* from process.env */
-      if (process.env.REDIS_HOST) {
-        if (process.env.REDIS_HOST === 'DOCKER_HOST') {
-          if (!process.env.DOCKER_HOST) {
-            throw new Error('DOCKER_HOST is not defined.');
-          }
-          config.REDIS_HOST = process.env.DOCKER_HOST
-        } else {
-          config.REDIS_HOST = process.env.REDIS_HOST;
-        }
-      }
-      /* from command line */
-      if (configFromCommandLine && configFromCommandLine['redis-host']) {
-        config.REDIS_HOST = configFromCommandLine['redis-host'];
-      }
-    }
+    loadOption(
+        'redis_host',
+        {
+          file: {src: configFromFile, name: 'redis-host'},
+          env: {src: process.env, name: 'REDIS_HOST'},
+          cmdline: {src: configFromCommandLine, name: 'redis-host'}
+        },
+        config);
 
 
     /*============================
      =   SESSION_COOKIE_DOMAIN   =
      ============================*/
-    if (true) {
-      /* from file */
-      if (configFromFile) {
-        if (configFromFile[config.NODE_ENV] &&
-            configFromFile[config.NODE_ENV]['session-cookie-domain']) {
-          config.SESSION_COOKIE_DOMAIN =
-              configFromFile[config.NODE_ENV]['session-cookie-domain']
-        } else if (configFromFile.port) {
-          config.SESSION_COOKIE_DOMAIN = configFromFile['session-cookie-domain']
-        }
-      }
-      /* from process.env */
-      if (process.env.SESSION_COOKIE_DOMAIN) {
-        config.SESSION_COOKIE_DOMAIN = process.env.SESSION_COOKIE_DOMAIN;
-      }
-      /* from command line */
-      if (configFromCommandLine &&
-          configFromCommandLine['session-cookie-domain']) {
-        config.SESSION_COOKIE_DOMAIN =
-            configFromCommandLine['session-cookie-domain'];
-      }
-    }
+    loadOption(
+        'session_cookie_domain',
+        {
+          file: {src: configFromFile, name: 'session-cookie-domain'},
+          env: {src: process.env, name: 'SESSION_COOKIE_DOMAIN'},
+          cmdline: {src: configFromCommandLine, name: 'session-cookie-domain'}
+        },
+        config);
   }
 
   /*=======================
    =   publics            =
    =======================*/
-  loadProperty('publics', 'publics', ['file'], Config);
+  loadOption('publics', {file: {src: configFromFile, name: 'publics'}}, config);
   // we should convert the regexp routes
   if (config.publics) {
     for (const p of config.publics) {
@@ -469,7 +354,10 @@ export async function getConfig(
 
 
   // add startup configurations to the main configuration object
-  Object.assign(config, startupconfig);
+  config = {
+    ...config,
+    ...startupconfig
+  }
 
   // we finally return the config
   return <VcmsOptions>config;
@@ -482,66 +370,33 @@ export type Public = {
 }
 
 
-/**
- * Vcms Writable Options
- * use this interface with the defaultOptions object and to initialize a
- * default Object with restricted values
- */
-export interface VcmsWritableOptions {
-  NODE_ENV: string;
-  PORT: number;
-  LOCAL_HOSTNAME: string;
+export interface VcmsOptions {
+  node_env: string;
+  port: number;
+  local_hostname: string;
 
-  HTTP2_REQUIRED: boolean;
-  HTTP2_KEY?: string;
-  HTTP2_CERT?: string;
+  http2_required: boolean;
+  http2_key?: string;
+  http2_cert?: string;
 
-  DATABASE_REQUIRED: boolean;
-  DB_TYPE?: string;
-  DB_HOST?: string;
-  DB_PORT?: number;
 
-  DB_NAME?: string;
-  DB_USER?: string;
-  DB_PASSWORD?: string;
+  database_required: boolean;
+  db_type?: string;
+  db_host?: string;
+  db_port?: number;
+  db_name?: string;
+  db_user?: string;
+  db_password?: string;
 
-  SESSION_REQUIRED: boolean;
-  REDIS_HOST?: string;
-  SESSION_COOKIE_DOMAIN?: string;
+  session_required: boolean;
+  redis_host?: string;
+  sesssion_cookie_domain?: string;
 
   configFilepath?: string;
   routers?: Routers;
   initSessionFunction?: (session: Express.Session) => void;
   publics?: Public[];
   middlewares?: RequestHandler[];
-}
-
-/**
- * Vcms Options
- * use this interface throughout the application, because environmental
- * variables shouldn't be changed during the execution of the program.
- */
-export interface VcmsOptions extends VcmsWritableOptions {
-  readonly NODE_ENV: string;
-  readonly PORT: number;
-  readonly LOCAL_HOSTNAME: string;
-
-  readonly HTTP2_REQUIRED: boolean;
-  readonly HTTP2_KEY?: string;
-  readonly HTTP2_CERT?: string;
-
-  readonly DATABASE_REQUIRED: boolean;
-  readonly DB_TYPE?: string;
-  readonly DB_HOST?: string;
-  readonly DB_PORT?: number;
-
-  readonly DB_NAME?: string;
-  readonly DB_USER?: string;
-  readonly DB_PASSWORD?: string;
-
-  readonly SESSION_REQUIRED: boolean;
-  readonly REDIS_HOST?: string;
-  readonly SESSION_COOKIE_DOMAIN?: string;
 }
 
 
@@ -591,37 +446,69 @@ export interface CommandLineOptions {
   'session-cookie-domain'?: string;
 }
 
+interface OptionSpecifier {
+  name: string;
+  src?: ConfigFileOptions|CommandLineOptions;
+  type?: string
+}
 
-
-function loadProperty(
-    configPropertyName: string,
-    propertyName: string,
-    from: string[] = ['file', 'env', 'cmdline'],
-    Config: {
-      config: VcmsWritableOptions,
-      configFromFile: ConfigFileOptions,
-      configFromCommandLine: CommandLineOptions
-    }) {
+function loadOption(
+    optionName: string,
+    from: {
+      file?: OptionSpecifier,
+      env?: OptionSpecifier,
+      cmdline?: OptionSpecifier
+    },
+    config: VcmsOptions) {
   /* from file */
-  if (from.includes('file') && Config.configFromFile) {
-    if (Config.configFromFile[Config.config.NODE_ENV] &&
-        Config.configFromFile[Config.config.NODE_ENV][propertyName]) {
-      Config.config[configPropertyName] =
-          Config.configFromFile[Config.config.NODE_ENV][propertyName]
-    } else if (Config.configFromFile[propertyName]) {
-      Config.config[configPropertyName] = Config.configFromFile[propertyName]
+  if (from.file && from.file.src) {
+    const src = from.file.src;
+    const name = from.file.name;
+    if (src[config.node_env] && src[config.node_env][name]) {
+      config[optionName] = src[config.node_env][name];
+    } else if (src[name]) {
+      config[optionName] = src[name];
     }
   }
 
   /* from process.env */
-  if (from.includes('env') && process.env[configPropertyName]) {
-    Config.config[configPropertyName] = process.env[configPropertyName];
+  if (from.env && process.env[from.env.name]) {
+    config[optionName] = from.env.src[from.env.name];
+    if (from.env.type === 'boolean') {
+      config[optionName] =
+          config[optionName].toLowerCase() === 'true' ? true : false;
+    }
+    if (from.env.type === 'integer') {
+      config[optionName] = parseInt(config[optionName]);
+    }
+
+    // DOCKER FOR DB_HOST
+    if (optionName === 'DB_HOST' && config[optionName] === 'DOCKER_HOST') {
+      if (!from.env.src['DOCKER_HOST']) {
+        throw new Error('DOCKER_HOST is not defined.');
+      }
+      config[optionName] = from.env.src['DOCKER_HOST'];
+    }
+
+    // DOCKER FRO REDIS_HOST
+    if (optionName === 'REDIS_HOST' && config[optionName] === 'DOCKER_HOST') {
+      if (!from.env.src['DOCKER_HOST']) {
+        throw new Error('DOCKER_HOST is not defined.');
+      }
+      config[optionName] = from.env.src['DOCKER_HOST'];
+    }
   }
 
   /* from command line */
-  if (from.includes('cmdline') && Config.configFromCommandLine &&
-      Config.configFromCommandLine[propertyName]) {
-    Config.config[configPropertyName] =
-        Config.configFromCommandLine[propertyName];
+  if (from.cmdline && from.cmdline.src && from.cmdline.src[from.cmdline.name]) {
+    config[optionName] = from.cmdline.src[from.cmdline.name];
   }
+}
+
+
+function throwError(message: string) {
+  logger.error(message);
+  const error = new Error(message);
+  error.name = 'config';
+  throw error;
 }

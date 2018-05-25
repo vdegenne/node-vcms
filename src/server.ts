@@ -1,5 +1,5 @@
 import {Application, RequestHandler} from 'express';
-import {existsSync, readFileSync, writeFileSync} from 'fs';
+import {existsSync, readFileSync} from 'fs';
 import {createServer} from 'http';
 import * as Knex from 'knex';
 import {Server} from 'net';
@@ -42,16 +42,16 @@ export async function getStructure(config: VcmsOptions): Promise<Structure> {
       Structure = {server: null, database: null, Session: null, app: null};
 
 
-  logger.info(`Using NODE_ENV=${config.NODE_ENV}`);
+  logger.info(`Using NODE_ENV=${config.node_env}`);
 
 
   // database
-  if (config.DATABASE_REQUIRED) {
+  if (config.database_required) {
     structure.database = await getDatabase(config);
   }
 
   // session
-  if (config.SESSION_REQUIRED) {
+  if (config.session_required) {
     structure.Session = await getSession(config);
   }
 
@@ -90,17 +90,17 @@ export async function getServer(
     config: VcmsOptions, app: Application): Promise<Server> {
   let server: Server;
 
-  if (config.HTTP2_REQUIRED) {
-    if (!existsSync(config.HTTP2_KEY)) {
+  if (config.http2_required) {
+    if (!existsSync(config.http2_key)) {
       throw new Error(`The key for the https server can't be found`);
     }
-    if (!existsSync(config.HTTP2_CERT)) {
+    if (!existsSync(config.http2_cert)) {
       throw new Error(`The certificate for the https server can't be found`);
     }
 
     const options = {
-      key: readFileSync(config.HTTP2_KEY),
-      cert: readFileSync(config.HTTP2_CERT)
+      key: readFileSync(config.http2_key),
+      cert: readFileSync(config.http2_cert)
     };
 
     logger.log('Creating http2 server...');
@@ -132,13 +132,13 @@ export async function startServer(startupFilepath?: string) {
     const structure = await getStructure(config);
 
 
-    structure.server.listen(config.PORT, (error: Error) => {
+    structure.server.listen(config.port, (error: Error) => {
       if (error) {
         throw new Error(error.message);
       }
 
-      logger.success(`Listening http${config.HTTP2_REQUIRED ? 's' : ''}://${
-          config.LOCAL_HOSTNAME}:${config.PORT}`);
+      logger.success(`Listening http${config.http2_required ? 's' : ''}://${
+          config.local_hostname}:${config.port}`);
     });
 
     // structure.server.on('error', async (e) => {

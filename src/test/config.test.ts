@@ -1,53 +1,47 @@
 import {expect} from 'chai';
 import {dirname} from 'path';
 
-import {VcmsWritableOptions} from '../config';
+import {VcmsOptions} from '../config';
 import {displayAllLoggers} from '../logging';
 
 import {getConfig} from './util';
 
-
-const defaultConfigFilepath = __dirname + '/../../fixtures/.vcms.yml';
-const defaultStartupConfigScriptFilepath =
-    __dirname + '/../../test/startupconfig.js';
+const defaultConfigFilepath = __dirname + '/../../test/.vcms.yml';
+const defaultStartupScriptPath = __dirname + '/../../test/app/startupconfig.js';
 
 
 suite('Config', () => {
-  const log = () => {
-    displayAllLoggers();
-  };
+  let config: VcmsOptions;
 
-  suiteTeardown(() => {
-    displayAllLoggers(false);
+  setup(async () => {
+    config = await getConfig();
   });
-
 
   test('defaults', async () => {
-    const config = await getConfig();
-    expect(config.PORT).to.equal(8000);
+    expect(config.port).to.equal(8000);
   });
 
-  test('change port', async () => {
-    const config = await getConfig(['-p', '123']);
-    expect(config.PORT).to.equal(123);
+  test('command-line arguments', async () => {
+    config = await getConfig(['-p', '123']);
+    expect(config.port).to.equal(123);
   });
 
   test('config file takes precedence over defaults', async () => {
     // default port is 8000, the port in the file is 8080 for dev
-    const config = await getConfig([], null, defaultConfigFilepath);
-    expect(config.PORT).to.equal(123);
+    config = await getConfig([], null, defaultConfigFilepath);
+    expect(config.port).to.equal(123);
   });
 
 
   test('process.env takes precedence over config file', async () => {
     // default port is 8000, the port in the file is 123,
-    // process.env.PORT is 321l
+    // process.env.PORT is 321
 
     const originalEnvPort = process.env.PORT;  // save context
     process.env.PORT = '321';                  // change context
 
     const config = await getConfig([], null, defaultConfigFilepath);
-    expect(config.PORT).to.equal(321);
+    expect(config.port).to.equal(321);
 
     if (!originalEnvPort)
       delete process.env.PORT;  // restore context
@@ -62,7 +56,7 @@ suite('Config', () => {
     process.env.PORT = '321';                  // change context
 
     const config = await getConfig(['-p', '4444'], null, defaultConfigFilepath);
-    expect(config.PORT).to.equal(4444);
+    expect(config.port).to.equal(4444);
 
 
     // restore context
@@ -75,16 +69,10 @@ suite('Config', () => {
   test('process.env.NODE_ENV influences the configuration', async () => {
     const originalNODE_ENV = process.env.NODE_ENV;  // save context
 
-    process.env.NODE_ENV = 'dev';  // change context
-    // dev port is 3001
-    let config = await getConfig([], null, defaultConfigFilepath);
-    expect(config.PORT).to.equal(3001);
-
-
     process.env.NODE_ENV = 'prod';  // change context
     // prod port is 8080
     config = await getConfig([], null, defaultConfigFilepath);
-    expect(config.PORT).to.equal(8080);
+    expect(config.port).to.equal(8080);
 
     // restore defaults
     if (!originalNODE_ENV) {
@@ -109,9 +97,9 @@ suite('Config', () => {
 
 
 suite('Config from script', () => {
-  let config: VcmsWritableOptions;
+  let config: VcmsOptions;
   setup(async () => {
-    config = await getConfig([], defaultStartupConfigScriptFilepath);
+    config = await getConfig([], defaultStartupScriptPath);
   });
 
   test('publics is configurable from script and overrides static', async () => {

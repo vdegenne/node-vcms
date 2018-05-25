@@ -40,7 +40,7 @@ export async function getApp(
 
 
   // morgan
-  if (config.NODE_ENV !== 'test') {
+  if (config.node_env !== 'test') {
     app.use(require('morgan')('dev'));
   }
 
