@@ -2,10 +2,10 @@ import * as chai from 'chai';
 import {expect} from 'chai';
 import * as chaiAsPromised from 'chai-as-promised';
 
-
 import {VcmsOptions} from '../config';
 import {getDatabase} from '../database';
 import {displayAllLoggers} from '../logging';
+
 import Test from './models/Test';
 import {getConfig} from './util';
 
