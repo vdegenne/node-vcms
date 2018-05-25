@@ -6,7 +6,7 @@ import {Server} from 'net';
 import {createServer as createHttp2Server} from 'spdy';
 
 import {getApp, Routers} from './app';
-import {VcmsOptions} from './config';
+import {Public, VcmsOptions} from './config';
 import {getConfig} from './config';
 import {getDatabase} from './database';
 import {Logger} from './logging';
@@ -32,7 +32,7 @@ export interface StartupConfig {
   routers?: Routers;
   initSessionFunction?: (session: Express.Session) => void;
   middlewares?: RequestHandler[];
-  publicDirectory?: string;
+  publics?: Public[];
 }
 
 
