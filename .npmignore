@@ -7,7 +7,6 @@ lib/test
 !lib/test/util.js.map
 src/test
 test
-public/
 .clang-format
 .gitignore
 .npmignore

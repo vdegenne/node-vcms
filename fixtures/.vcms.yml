@@ -1,8 +1,10 @@
 database: true
 session: true
 publics:
-  /: public
-  /another-public: public2
+  - route: /
+    serve: public
+  - route: /\/test/
+    serve: public/test
 
 port: 123
 

@@ -64,9 +64,9 @@ export async function getApp(
 
   // publics
   if (config.publics && Object.keys(config.publics).length) {
-    for (const p in config.publics) {
-      logger.log(`Using public directory : "${p}" => "${config.publics[p]}"`);
-      app.use(p, express.static(process.cwd() + '/' + config.publics[p]));
+    for (const p of config.publics) {
+      logger.log(`Using public directory : "${p.route}" => "${p.serve}"`);
+      app.use(p.route, express.static(process.cwd() + '/' + p.serve));
     }
   }
 

@@ -1,13 +1,15 @@
 import {expect} from 'chai';
 import {dirname} from 'path';
 
-
+import {VcmsWritableOptions} from '../config';
 import {displayAllLoggers} from '../logging';
+
 import {getConfig} from './util';
 
 
 const defaultConfigFilepath = __dirname + '/../../fixtures/.vcms.yml';
-const defaultStartupConfigScriptFilepath = __dirname;
+const defaultStartupConfigScriptFilepath =
+    __dirname + '/../../test/startupconfig.js';
 
 
 suite('Config', () => {
@@ -23,7 +25,6 @@ suite('Config', () => {
   test('defaults', async () => {
     const config = await getConfig();
     expect(config.PORT).to.equal(8000);
-    expect(config.publics).to.deep.equal({'/': 'public'});
   });
 
   test('change port', async () => {
@@ -48,7 +49,8 @@ suite('Config', () => {
     const config = await getConfig([], null, defaultConfigFilepath);
     expect(config.PORT).to.equal(321);
 
-    if (!originalEnvPort) delete process.env.PORT;  // restore context
+    if (!originalEnvPort)
+      delete process.env.PORT;  // restore context
   });
 
 
@@ -94,7 +96,27 @@ suite('Config', () => {
 
   test('publics is configurable from .vcms.yml file', async () => {
     const config = await getConfig([], null, defaultConfigFilepath);
-    expect(config.publics)
-        .to.deep.equal({'/': 'public', '/another-public': 'public2'});
+    expect(config.publics[0]).to.deep.equal({route: '/', serve: 'public'});
+  });
+
+  test('RegExps in publics get converted', async () => {
+    const config = await getConfig([], null, defaultConfigFilepath);
+    expect(config.publics[1].route).to.be.a('regexp');
+    expect(config.publics[1])
+        .to.deep.equal({route: /\/test/, serve: 'public/test'});
+  });
+});
+
+
+suite('Config from script', () => {
+  let config: VcmsWritableOptions;
+  setup(async () => {
+    config = await getConfig([], defaultStartupConfigScriptFilepath);
+  });
+
+  test('publics is configurable from script and overrides static', async () => {
+    expect(config.publics).to.deep.equal([
+      {route: /\/hello/, serve: 'public/world'}
+    ]);
   });
 });

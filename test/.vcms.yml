@@ -2,7 +2,8 @@ port: 8000
 local-hostname: testapp.vdegenne.local
 
 publics:
-  /*: public
+  - route: '/'
+    serve: public
 
 
 database: true
@@ -20,4 +21,5 @@ prod:
   db-port: 5432
   session-cookie-domain: .vdegenne.com
   publics:
-    /*: public/build/es6-bundled
+    - route: '/'
+      serve: public/build/es6-bundled

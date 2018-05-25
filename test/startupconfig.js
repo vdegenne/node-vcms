@@ -13,5 +13,6 @@ exports.default = {
   middlewares: [(req, res, next) => {
     console.log(`asking for ${req.url} (log from user-defined middleware)`);
     next();
-  }]
+  }],
+  publics: [{route: /\/hello/, serve: 'public/world'}]
 };

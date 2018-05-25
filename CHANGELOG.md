@@ -1,5 +1,8 @@
 # ChangeLog
 
+## [25-05-2018] v1.6.0
+
+* Enhance `publics` configuration capabilities (RegExp support).
 
 ## [21-05-2018] v1.5.3
 

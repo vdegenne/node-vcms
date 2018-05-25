@@ -28,9 +28,7 @@ export const defaultOptions: VcmsOptions = {
   DB_TYPE: 'pg',
 
   SESSION_REQUIRED: false,
-  REDIS_HOST: 'localhost:6379',
-
-  publics: {'/': 'public'}
+  REDIS_HOST: 'localhost:6379'
 };
 
 
@@ -46,7 +44,9 @@ export async function getConfig(
   // false;
   if (startupConfigScriptPath === undefined) {  // resolving to default
     const possiblePaths = [
-      process.cwd(), process.cwd() + '/build', process.cwd() + '/lib',
+      process.cwd(),
+      process.cwd() + '/build',
+      process.cwd() + '/lib',
       process.cwd() + '/test'
     ];
 
@@ -456,6 +456,16 @@ export async function getConfig(
    =   publics            =
    =======================*/
   loadProperty('publics', 'publics', ['file'], Config);
+  // we should convert the regexp routes
+  if (config.publics) {
+    for (const p of config.publics) {
+      p.route = <string>p.route;
+      if (p.route !== '/' && p.route.startsWith('/\\/') &&
+          p.route.endsWith('/')) {
+        p.route = new RegExp(p.route.replace(/^\/|\/$/g, ''));
+      }
+    }
+  }
 
 
   // add startup configurations to the main configuration object
@@ -464,6 +474,13 @@ export async function getConfig(
   // we finally return the config
   return <VcmsOptions>config;
 }
+
+
+export type Public = {
+  route: string|RegExp,
+  serve: string
+}
+
 
 /**
  * Vcms Writable Options
@@ -495,7 +512,7 @@ export interface VcmsWritableOptions {
   configFilepath?: string;
   routers?: Routers;
   initSessionFunction?: (session: Express.Session) => void;
-  publics?: {[route: string]: string};
+  publics?: Public[];
   middlewares?: RequestHandler[];
 }
 
@@ -555,7 +572,7 @@ export interface ConfigFileOptionsBase {
   'redis-host'?: string;
   'session-cookie-domain'?: string;
 
-  'publics'?: {[route: string]: string};
+  'publics'?: Public[];
 }
 
 export interface CommandLineOptions {
@@ -577,8 +594,10 @@ export interface CommandLineOptions {
 
 
 function loadProperty(
-    configPropertyName: string, propertyName: string,
-    from: string[] = ['file', 'env', 'cmdline'], Config: {
+    configPropertyName: string,
+    propertyName: string,
+    from: string[] = ['file', 'env', 'cmdline'],
+    Config: {
       config: VcmsWritableOptions,
       configFromFile: ConfigFileOptions,
       configFromCommandLine: CommandLineOptions
