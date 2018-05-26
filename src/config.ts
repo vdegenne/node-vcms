@@ -452,7 +452,7 @@ export async function getConfig(
 
 
   // add startup configurations to the main configuration object
-  // config = {...config, ...startupconfig};
+  config = {...config, ...startupconfig};
 
   // we finally return the config
   return <VcmsOptions>config;
@@ -603,7 +603,7 @@ function loadOption(
 
 function transferProperty(
     propName: string, from: VcmsOptions, to: VcmsOptions) {
-  if (!(propName in from)) {
+  if (!from || !(propName in from)) {
     return;
   }
 
