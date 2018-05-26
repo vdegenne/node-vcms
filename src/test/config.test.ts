@@ -104,7 +104,13 @@ suite('Config from script', () => {
 
   test('publics is configurable from script and overrides static', async () => {
     expect(config.publics).to.deep.equal([
-      {route: /\/hello/, serve: 'public/world'}
+      {route: /\/hello/, serve: 'test/app/public'},
+      {route: '/statics', serve: 'test/app/public'}
     ]);
+  });
+
+  test('[Typescript] configurable publics', async () => {
+    config = await getConfig([], __dirname + '/fixtures/startupconfig.js');
+    expect(config.publics).to.deep.equal([{route: /\/test/, serve: 'test'}]);
   });
 });

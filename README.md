@@ -1,8 +1,9 @@
+<img src="https://github.com/vdegenne/node-vcms/logo.png">
 [![npm](https://img.shields.io/npm/v/vcms.svg)](https://www.npmjs.com/package/vcms)
 
 # vcms
 
-a tiny node cms (express, objection, express-session/redis, and more).  \
+A tiny node cms (express, objection, express-session/redis, and more).  \
 Though it's not really a CMS, it is intended to ease the management of application content back-end.
 
 
@@ -20,7 +21,6 @@ create `app.js` (or whichever name you like) :
 
 ```javascript
 const {start} = require('vcms');
-
 start();
 ```
 
@@ -62,62 +62,49 @@ Now we have to tell our application to use this router (which provides 2 routes 
 Let's create `startupconfig.js` , and write the following :
 
 ```javascript
-exports.default = {
-  routers: {
-    '/greetings': require('./greetings.router'),
+module.exports = (config) => {
+
+  config.routers = {
+    '/greetings': require('./greetings.router');
   }
+
+  return config;
 }
 ```
 
-It is important that this file is called `startupconfig.js` here (or `startupconfig.ts` for typescript) because the framework will try to find this file in order to init the application. *The `startupconfig.js` file is the dynamic way to configure the application along with the `.vcms.yml` (see **Static Configuration** below for more details).*
+It is important that this file is called `startupconfig.js` here (or `startupconfig.ts` for typescript) because the framework will try to find this file in order to init the application. It is also important that the `startupconfig.js` contains `module.exports` with the function. This function is where we can dynamically configure our application, the `config` argument is a configuration object containing the defaults. The function needs to return the same object or a similar object satisfying the `VcmsOptions` interface. This is where we can derive the defaults with our own options. Also it is recommended to use typescript so we can take advantage of the interface and see the different options we can use.
 
-When you restart your application the routes `/greetings/hello` and `/greetings/bye` should be accessibles.
+(*note: The `startupconfig.js` file is the dynamic way to configure the application along with the `.vcms.yml`. See **Static Configuration** below for more details.*)
+
+When we restart our application the routes `/greetings/hello` and `/greetings/bye` should be accessibles.
 
 *note: When the number of routers grow up, it's good practice to place them in a so called `routers` directory and then write the app like :*
 
 ```javascript
-exports.default = {
+module.exports = (config) => {
+
   routers: {
-    '/greetings': require('./routers/greetings.router'),
-    '/api/user': require('./routers/users.router'),
-    '/api/articles': require('./routers/articles.router')
+      '/greetings': require('./routers/greetings.router'),
+      '/api/user': require('./routers/users.router'),
+      '/api/articles': require('./routers/articles.router')
   }
+
+  return config;
 }
 ```
 
-## **middlewares**
-
-You can use middlewares if you need to perform actions before the routers are reached.
-
-```javascript
-exports.default = {
-  ...
-  middlewares: [
-    (req, res, next) => {
-      console.log('hello from middleware');
-      next();
-    },
-    async (req, res, next) => {
-      console.log('another middlware');
-      next();
-    }
-  ]
-}
-```
-
-(*note: middlewares are executed before the routers*).
 
 ### **startupconfig.js**
 
-Here are all the properties you can use to init the application :
+Here are all the properties we can use to init the application :
 
 ```javascript
-exports.default = {
-  configFilepath: ...       // (string):      path to the static configuration file
-  initSessionFunction: ...  // (Function):    init the session object
-  middlewares: ...          // (Function[]):  middlewares
-  publicDirectory: ...      // (string):      public directory
-  routers: ...              // (Router[]):    the application's routers
+module.exports  = (config) => {
+  config.configFilepath: ...       // (string):      path to the static configuration file
+  config.initSessionFunction: ...  // (Function):    init the session object
+  config.middlewares: ...          // (Function[]):  middlewares
+  config.publicDirectory: ...      // (string):      public directory
+  config.routers: ...              // (Router[]):    the application's routers
 }
 ```
 
@@ -136,7 +123,6 @@ Here are the possible options :
 ```bash
 # Command-Line Arguments
 node app.js --port/-p <number> \
-            --public-directory <string> \
             --local-hostname/-h <string> \
             --database/-d [ --db-type <string> \
                             --db-host <string> \

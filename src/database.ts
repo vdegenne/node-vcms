@@ -13,13 +13,13 @@ export async function getDatabase(config: VcmsOptions): Promise<Knex> {
   let knexDialect: string;
 
   // specific options
-  switch (config.DB_TYPE) {
+  switch (config.db_type) {
     case 'pg':
       knexDialect = 'pg';
   }
 
 
-  if (!config.DB_USER) {
+  if (!config.db_user) {
     const error = 'No Database User specified !';
     logger.error(error);
     throw new Error(error);
@@ -27,10 +27,10 @@ export async function getDatabase(config: VcmsOptions): Promise<Knex> {
 
 
   /* PASSWORD */
-  let password = config.DB_PASSWORD;
-  if (!config.DB_PASSWORD) {
+  let password = config.db_password;
+  if (!config.db_password) {
     password = question(
-        `Enter Database password for ${config.DB_USER}: `,
+        `Enter Database password for ${config.db_user}: `,
         {hideEchoBack: true});
   }
 
@@ -39,13 +39,13 @@ export async function getDatabase(config: VcmsOptions): Promise<Knex> {
     logger.error('The password in the configuration file is encrypted.');
 
     password = question(
-        `Enter Database password for ${config.DB_USER}: `,
+        `Enter Database password for ${config.db_user}: `,
         {hideEchoBack: true});
 
     const sha1 = createHash('sha1');
     sha1.update(password);
 
-    if (sha1.digest('hex') !== config.DB_PASSWORD.substr(5)) {
+    if (sha1.digest('hex') !== config.db_password.substr(5)) {
       const err = new Error('Password for database is incorrect');
       err.name = 'database';
       throw err;
@@ -54,20 +54,20 @@ export async function getDatabase(config: VcmsOptions): Promise<Knex> {
 
 
   /* DATABASE NAME */
-  let dbname = config.DB_NAME;
+  let dbname = config.db_name;
   if (!dbname) {
     logger.info(`No Database Name specified, using default (resolved to ${
-        config.DB_USER})`);
-    dbname = config.DB_USER;
+        config.db_user})`);
+    dbname = config.db_user;
   }
 
   // database
   const database = Knex({
     client: knexDialect,
     connection: {
-      host: config.DB_HOST,
-      port: config.DB_PORT,
-      user: config.DB_USER,
+      host: config.db_host,
+      port: config.db_port,
+      user: config.db_user,
       password: password,
       database: dbname,
     },

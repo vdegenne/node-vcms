@@ -345,8 +345,8 @@ export async function getConfig(
   if (config.publics) {
     for (const p of config.publics) {
       p.route = <string>p.route;
-      if (p.route !== '/' && p.route.startsWith('/\\/') &&
-          p.route.endsWith('/')) {
+      if (typeof p.route !== 'object' && p.route !== '/' &&
+          p.route.startsWith('/\\/') && p.route.endsWith('/')) {
         p.route = new RegExp(p.route.replace(/^\/|\/$/g, ''));
       }
     }
@@ -390,7 +390,7 @@ export interface VcmsOptions {
 
   session_required: boolean;
   redis_host?: string;
-  sesssion_cookie_domain?: string;
+  session_cookie_domain?: string;
 
   configFilepath?: string;
   routers?: Routers;

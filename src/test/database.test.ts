@@ -6,7 +6,7 @@ import {VcmsOptions} from '../config';
 import {getDatabase} from '../database';
 import {displayAllLoggers} from '../logging';
 
-import Test from './models/Test';
+import Test from './fixtures/Test';
 import {getConfig} from './util';
 
 
@@ -14,19 +14,21 @@ chai.use(chaiAsPromised);
 const assert = chai.assert;
 
 
-const defaultConfigFilepath = __dirname + '/../../fixtures/.vcms-db.yml';
+const defaultConfigFilepath = __dirname + '/../../test/.vcms.yml';
 
 
 suite('Database', async () => {
-  const debug = () => {
-    displayAllLoggers();
-  };
+  let config: VcmsOptions;
 
-  suiteTeardown(() => {
-    displayAllLoggers(false);
+  const debug = () => displayAllLoggers(false);
+
+  setup(async () => {
+    config = await getConfig([], null, defaultConfigFilepath);
   });
 
-
+  teardown(() => {
+    displayAllLoggers(false);
+  });
 
   const basicRun = (config: VcmsOptions) => {
     return new Promise(async (resolve, reject) => {
@@ -45,9 +47,6 @@ suite('Database', async () => {
   test(
       'It connects to the local database and returns a Knex object',
       async () => {
-        // with defaults
-        const config = await getConfig([], null, defaultConfigFilepath);
-
         return expect(basicRun(config)).not.to.be.rejected;
       });
 
@@ -55,7 +54,7 @@ suite('Database', async () => {
   test(
       'Failing the connection with the database returns an Error', async () => {
         // fake port
-        const config =
+        config =
             await getConfig(['--db-port', '1234'], null, defaultConfigFilepath);
 
         return expect(basicRun(config)).to.be.rejected;

@@ -29,11 +29,11 @@ export async function getSession(config: VcmsOptions): Promise<Session> {
     saveUninitialized: false
   }
 
-  if (config.SESSION_COOKIE_DOMAIN) {
+  if (config.session_cookie_domain) {
     logger.log(
-        `Using ${config.SESSION_COOKIE_DOMAIN} for the session cookie domain.`);
+        `Using ${config.session_cookie_domain} for the session cookie domain.`);
     sessionOptions.cookie = {};
-    sessionOptions.cookie.domain = config.SESSION_COOKIE_DOMAIN;
+    sessionOptions.cookie.domain = config.session_cookie_domain;
   }
   else {
     logger.info(
@@ -55,7 +55,7 @@ export async function getSession(config: VcmsOptions): Promise<Session> {
 
 function getRedisClient(config: VcmsOptions): Promise<RedisClient> {
   return new Promise((resolve, reject) => {
-    const connectionHost = config.REDIS_HOST.split(':');
+    const connectionHost = config.redis_host.split(':');
 
     const client = createClient({
       host: connectionHost[0],
