@@ -122,8 +122,8 @@ Think about the `startupconfig` script as a middleware we can use to rewrite mos
 One particularity of `vcms` is that it has a default state and this state can be customized almost entirely.  \
 In the previous section we saw how to configure the application dynamically (say the behavior defined with some code). There is also a static way that precedes the dynamic one. There is three ways of modifying the state statically :
 
-* using environment variables.
 * using a `.vcms.yml` configuration file.
+* using environment variables.
 * using command-line arguments.
 
 The precedence is performed in the order of the list above. For instance the command-line `--port` argument will override `port` property in the configuration file.

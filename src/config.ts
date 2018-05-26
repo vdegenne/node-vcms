@@ -79,7 +79,11 @@ export async function getConfig(
         throwError(
             'the startup script needs to export a function as the default');
 
-      startupconfig = await startupfunction(config);
+      startupconfig = await startupfunction({...config});
+      // node_env can be overridden
+      if (startupconfig.node_env) {
+        config.node_env = startupconfig.node_env;
+      }
 
     } else {
       const errMsg = `Startup configuration script "${
@@ -355,10 +359,7 @@ export async function getConfig(
 
 
   // add startup configurations to the main configuration object
-  config = {
-    ...config,
-    ...startupconfig
-  }
+  config = {...config, ...startupconfig};
 
   // we finally return the config
   return <VcmsOptions>config;
