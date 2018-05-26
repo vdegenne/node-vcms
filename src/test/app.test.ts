@@ -19,6 +19,7 @@ suite('App', () => {
 
   setup(async () => {
     config = await getConfig([], defaultStartupScriptPath);
+    console.log(config);
     structure = await getStructure(config);
   });
 

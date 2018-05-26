@@ -138,10 +138,17 @@ export async function getConfig(
   /*===========
    =   PORT   =
    ===========*/
+  // 1. file
+  loadOption(
+      'port',
+      {file: {src: configFromFile, name: 'port', type: 'integer'}},
+      config);
+  // 2. startupconfig
+  transferProperty('port', startupconfig, config);
+  // 3. environment and command-line
   loadOption(
       'port',
       {
-        file: {src: configFromFile, name: 'port', type: 'integer'},
         env: {src: process.env, name: 'PORT', type: 'integer'},
         cmdline: {src: configFromCommandLine, name: 'port'}
       },
@@ -150,6 +157,14 @@ export async function getConfig(
   /*=====================
    =   LOCAL_HOSTNAME   =
    =====================*/
+  // 1. file
+  loadOption(
+      'local_hostname',
+      {file: {src: configFromFile, name: 'local-hostname'}},
+      config);
+  // 2. startupconfig
+  transferProperty('local_hostname', startupconfig, config);
+  // 3. environment and command-line
   loadOption(
       'local_hostname',
       {
@@ -163,10 +178,15 @@ export async function getConfig(
   /*====================
    = HTTP2             =
    ====================*/
+  // 1. file
+  loadOption(
+      'http2_required', {file: {src: configFromFile, name: 'http2'}}, config);
+  // 2. startupconfig
+  transferProperty('http2_required', startupconfig, config);
+  // 3. environment and command-line
   loadOption(
       'http2_required',
       {
-        file: {src: configFromFile, name: 'http2'},
         env: {src: process.env, name: 'HTTP2_REQUIRED', type: 'boolean'},
         cmdline: {src: configFromCommandLine, name: 'http2'}
       },
@@ -175,10 +195,15 @@ export async function getConfig(
   /*====================
    = HTTP2 CERT        =
    ====================*/
+  // 1. file
+  loadOption(
+      'http2_cert', {file: {src: configFromFile, name: 'http2-cert'}}, config);
+  // 2. startupconfig
+  transferProperty('http2_cert', startupconfig, config);
+  // 3. environment and command-line
   loadOption(
       'http2_cert',
       {
-        file: {src: configFromFile, name: 'http2-cert'},
         env: {src: process.env, name: 'HTTP2_CERT'},
         cmdline: {src: configFromCommandLine, name: 'http2-cert'}
       },
@@ -189,10 +214,15 @@ export async function getConfig(
   /*====================
    = HTTP2 KEY         =
    ====================*/
+  // 1. file
+  loadOption(
+      'http2_key', {file: {src: configFromFile, name: 'http2-key'}}, config);
+  // 2. startupconfig
+  transferProperty('http2_key', startupconfig, config);
+  // 3. environment and command-line
   loadOption(
       'http2_key',
       {
-        file: {src: configFromFile, name: 'http2-key'},
         env: {src: process.env, name: 'HTTP2_KEY'},
         cmdline: {src: configFromCommandLine, name: 'http2-key'}
       },
@@ -203,10 +233,17 @@ export async function getConfig(
   /*====================
    = DATABASE_REQUIRED =
    ====================*/
+  // 1. file
+  loadOption(
+      'database_required',
+      {file: {src: configFromFile, name: 'database'}},
+      config);
+  // 2. startupconfig
+  transferProperty('database_required', startupconfig, config);
+  // 3. environment and command-line
   loadOption(
       'database_required',
       {
-        file: {src: configFromFile, name: 'database'},
         env: {src: process.env, name: 'DATABASE_REQUIRED', type: 'boolean'},
         cmdline: {src: configFromCommandLine, name: 'enable-database'}
       },
@@ -217,10 +254,15 @@ export async function getConfig(
     /*===========
      = DB_TYPE  =
      ===========*/
+    // 1. file
+    loadOption(
+        'db_type', {file: {src: configFromFile, name: 'db-type'}}, config);
+    // 2. startupconfig
+    transferProperty('db_type', startupconfig, config);
+    // 3. environment and command-line
     loadOption(
         'db_type',
         {
-          file: {src: configFromFile, name: 'db-type'},
           env: {src: process.env, name: 'DB_TYPE'}
           // to implement command-line
         },
@@ -229,10 +271,15 @@ export async function getConfig(
     /*===========
      = DB_HOST  =
      ===========*/
+    // 1. file
+    loadOption(
+        'db_host', {file: {src: configFromFile, name: 'db-host'}}, config);
+    // 2. startupconfig
+    transferProperty('db_host', startupconfig, config);
+    // 3. environment and command-line
     loadOption(
         'db_host',
         {
-          file: {src: configFromFile, name: 'db-host'},
           env: {src: process.env, name: 'DB_HOST'}
           // to implement command-line
         },
@@ -248,10 +295,15 @@ export async function getConfig(
     /*===========
      = DB_PORT  =
      ===========*/
+    // 1. file
+    loadOption(
+        'db_port', {file: {src: configFromFile, name: 'db-port'}}, config);
+    // 2. startupconfig
+    transferProperty('db_port', startupconfig, config);
+    // 3. environment and command-line
     loadOption(
         'db_port',
         {
-          file: {src: configFromFile, name: 'db-port'},
           env: {src: process.env, name: 'DB_PORT'},
           cmdline: {src: configFromCommandLine, name: 'db-port'}
         },
@@ -268,10 +320,15 @@ export async function getConfig(
     /*===========
      = DB_NAME  =
      ===========*/
+    // 1. file
+    loadOption(
+        'db_name', {file: {src: configFromFile, name: 'db-name'}}, config);
+    // 2. startupconfig
+    transferProperty('db_name', startupconfig, config);
+    // 3. environment and command-line
     loadOption(
         'db_name',
         {
-          file: {src: configFromFile, name: 'db-name'},
           env: {src: process.env, name: 'DB_NAME'},
           cmdline: {src: configFromCommandLine, name: 'db-name'}
         },
@@ -280,10 +337,15 @@ export async function getConfig(
     /*===========
      = DB_USER  =
      ===========*/
+    // 1. file
+    loadOption(
+        'db_user', {file: {src: configFromFile, name: 'db-user'}}, config);
+    // 2. startupconfig
+    transferProperty('db_user', startupconfig, config);
+    // 3. environment and command-line
     loadOption(
         'db_user',
         {
-          file: {src: configFromFile, name: 'db-user'},
           env: {src: process.env, name: 'DB_USER'},
           cmdline: {src: configFromCommandLine, name: 'db-user'}
         },
@@ -292,10 +354,17 @@ export async function getConfig(
     /*===============
      = DB_PASSWORD  =
      ===============*/
+    // 1. file
+    loadOption(
+        'db_password',
+        {file: {src: configFromFile, name: 'db-password'}},
+        config);
+    // 2. startupconfig
+    transferProperty('db_password', startupconfig, config);
+    // 3. environment and command-line
     loadOption(
         'db_password',
         {
-          file: {src: configFromFile, name: 'db-password'},
           env: {src: process.env, name: 'DB_PASSWORD'},
           // to implement command-line
         },
@@ -305,10 +374,17 @@ export async function getConfig(
   /*===================
    = SESSION_REQUIRED =
    ===================*/
+  // 1. file
+  loadOption(
+      'session_required',
+      {file: {src: configFromFile, name: 'session'}},
+      config);
+  // 2. startupconfig
+  transferProperty('session_required', startupconfig, config);
+  // 3. environment and command-line
   loadOption(
       'session_required',
       {
-        file: {src: configFromFile, name: 'session'},
         env: {src: process.env, name: 'SESSION_REQUIRED', type: 'boolean'},
         cmdline: {src: configFromCommandLine, name: 'enable-session'}
       },
@@ -319,10 +395,17 @@ export async function getConfig(
     /*=============
      = REDIS_HOST =
      =============*/
+    // 1. file
+    loadOption(
+        'redis_host',
+        {file: {src: configFromFile, name: 'redis-host'}},
+        config);
+    // 2. startupconfig
+    transferProperty('redis_host', startupconfig, config);
+    // 3. environment and command-line
     loadOption(
         'redis_host',
         {
-          file: {src: configFromFile, name: 'redis-host'},
           env: {src: process.env, name: 'REDIS_HOST'},
           cmdline: {src: configFromCommandLine, name: 'redis-host'}
         },
@@ -332,10 +415,17 @@ export async function getConfig(
     /*============================
      =   SESSION_COOKIE_DOMAIN   =
      ============================*/
+    // 1. file
+    loadOption(
+        'session_cookie_domain',
+        {file: {src: configFromFile, name: 'session-cookie-domain'}},
+        config);
+    // 2. startupconfig
+    transferProperty('session_cookie_domain', startupconfig, config);
+    // 3. environment and command-line
     loadOption(
         'session_cookie_domain',
         {
-          file: {src: configFromFile, name: 'session-cookie-domain'},
           env: {src: process.env, name: 'SESSION_COOKIE_DOMAIN'},
           cmdline: {src: configFromCommandLine, name: 'session-cookie-domain'}
         },
@@ -345,7 +435,10 @@ export async function getConfig(
   /*=======================
    =   publics            =
    =======================*/
+  // 1. file
   loadOption('publics', {file: {src: configFromFile, name: 'publics'}}, config);
+  // 2. startupconfig
+  transferProperty('publics', startupconfig, config);
   // we should convert the regexp routes
   if (config.publics) {
     for (const p of config.publics) {
@@ -359,7 +452,7 @@ export async function getConfig(
 
 
   // add startup configurations to the main configuration object
-  config = {...config, ...startupconfig};
+  // config = {...config, ...startupconfig};
 
   // we finally return the config
   return <VcmsOptions>config;
@@ -505,6 +598,17 @@ function loadOption(
   if (from.cmdline && from.cmdline.src && from.cmdline.src[from.cmdline.name]) {
     config[optionName] = from.cmdline.src[from.cmdline.name];
   }
+}
+
+
+function transferProperty(
+    propName: string, from: VcmsOptions, to: VcmsOptions) {
+  if (!(propName in from)) {
+    return;
+  }
+
+  to[propName] = from[propName];
+  delete from[propName];
 }
 
 
