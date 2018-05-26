@@ -1,11 +1,9 @@
-<img src="https://raw.githubusercontent.com/vdegenne/node-vcms/master/logo.png">
 [![npm](https://img.shields.io/npm/v/vcms.svg)](https://www.npmjs.com/package/vcms)
 
-# vcms
+<h2 align="center"><img src="https://raw.githubusercontent.com/vdegenne/node-vcms/master/logo.png"><br></h2>
+<p  align="center"><strong>A tiny node cms (express, objection, express-session/redis, and more)</strong></p>
 
-A tiny node cms (express, objection, express-session/redis, and more).  \
 Though it's not really a CMS, it is intended to ease the management of application content back-end.
-
 
 ## Installation
 
