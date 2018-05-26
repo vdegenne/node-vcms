@@ -101,6 +101,8 @@ module.exports  = (config) => {
   config.middlewares: ...          // (Function[]):  middlewares
   config.publicDirectory: ...      // (string):      public directory
   config.routers: ...              // (Router[]):    the application's routers
+
+  return config;
 }
 ```
 
