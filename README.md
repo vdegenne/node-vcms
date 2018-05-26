@@ -79,7 +79,7 @@ When we restart our application the routes `/greetings/hello` and `/greetings/by
 ```javascript
 module.exports = (config) => {
 
-  routers: {
+  config.routers: {
       '/greetings': require('./routers/greetings.router'),
       '/api/user': require('./routers/users.router'),
       '/api/articles': require('./routers/articles.router')
