@@ -150,8 +150,8 @@ All properties are optionals. Between brackets are the properties that are speci
 | Session Cookie Domain | `string`  | *                     | `localhost` | If the session support is enabled, the main session cookie will use this value as its accessibility scope.                                                                        |
 
 You also have :
-- **DB TYPE**, **DB HOST**, **DB PORT**, **DB NAME**, **DB USER**, **DB PASSWORD** ...when the database support is activated
-- **REDIS HOST** ...when the session support is activated
+- **DB_TYPE**, **DB_HOST**, **DB_PORT**, **DB_NAME**, **DB_USER**, **DB_PASSWORD** ...when the database support is activated
+- **REDIS_HOST** ...when the session support is activated
 
 
 ## Configuration file

@@ -13,6 +13,7 @@ const logger = new Logger('config');
 export type StartupFunction = (config: VcmsOptions) =>
     Promise<VcmsOptions>|VcmsOptions
 
+
 /* defaults */
 export const defaultOptions: VcmsOptions = {
   node_env: 'prod',
