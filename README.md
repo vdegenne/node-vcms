@@ -1,6 +1,6 @@
 [![npm](https://img.shields.io/npm/v/vcms.svg)](https://www.npmjs.com/package/vcms)
 
-<h2 align="center"><img src="https://raw.githubusercontent.com/vdegenne/node-vcms/master/logo.png"><br></h2>
+<h2 align="center"><img src="https://raw.githubusercontent.com/vdegenne/node-vcms/master/logo.png" width="90"><br></h2>
 <p  align="center"><strong>A tiny node cms (express, objection, express-session/redis, and more)</strong></p>
 
 Though it's not really a CMS, it is intended to ease the management of application content back-end.
@@ -70,7 +70,7 @@ module.exports = (config) => {
 }
 ```
 
-It is important that this file is called `startupconfig.js` here (or `startupconfig.ts` for typescript) because the framework will try to find this file in order to init the application. It is also important that the `startupconfig.js` contains `module.exports` with the function. This function is where we can dynamically configure our application, the `config` argument is a configuration object containing the defaults. The function needs to return the same object or a similar object satisfying the `VcmsOptions` interface. This is where we can derive the defaults with our own options. Also it is recommended to use typescript so we can take advantage of the interface and see the different options we can use.
+It is important that this file is called `startupconfig.js` here (or `startupconfig.ts` for typescript) because the framework will try to find this file in order to init the application. It is also important that the `startupconfig.js` contains a `module.exports` with a function (the function can be `async`). This function is where we can dynamically configure our application, the `config` argument is a configuration object containing the defaults. The function needs to return the same object or a similar object satisfying the `VcmsOptions` interface. This is where we can derive the defaults with our own options. Also it is recommended to use typescript so we can take advantage of the interface and see the different options we can use.
 
 (*note: The `startupconfig.js` file is the dynamic way to configure the application along with the `.vcms.yml`. See **Static Configuration** below for more details.*)
 
