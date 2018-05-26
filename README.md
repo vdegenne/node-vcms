@@ -1,4 +1,4 @@
-<img src="https://github.com/vdegenne/node-vcms/logo.png">
+<img src="https://raw.githubusercontent.com/vdegenne/node-vcms/master/logo.png">
 [![npm](https://img.shields.io/npm/v/vcms.svg)](https://www.npmjs.com/package/vcms)
 
 # vcms
