@@ -1,7 +1,5 @@
 
-exports.default = async () => {
-  let config = {};
-
+exports.default = async (config) => {
   config.configFilepath = `${__dirname}/.vcms.yml`;
 
   config.routers = {'/api': require('./api.router')};

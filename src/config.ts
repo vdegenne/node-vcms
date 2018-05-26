@@ -72,26 +72,19 @@ export async function getConfig(
       logger.log(`Startup configuration script file resolved to "${
           startupConfigScriptPath}".`);
 
-      const startupfunction: StartupFunction =
-          require(startupConfigScriptPath).default;
+      const startupfunction = require(startupConfigScriptPath).default;
 
       if (typeof startupfunction !== 'function')
         throwError(
             'the startup script needs to export a function as the default');
 
-      startupconfig = await startupfunction({...config});
+      startupconfig = await startupfunction({node_env: config.node_env});
       // node_env can be overridden
-      if (startupconfig.node_env) {
-        config.node_env = startupconfig.node_env;
-      }
+      config.node_env = startupconfig.node_env;
 
     } else {
-      const errMsg = `Startup configuration script "${
-          startupConfigScriptPath}" couldn't be found.`;
-      logger.error(errMsg);
-      const error = new Error(errMsg);
-      error.name = 'config';
-      throw error;
+      throwError(`Startup configuration script "${
+          startupConfigScriptPath}" couldn't be found`);
     }
   } else {
     logger.info('!! No startup configuration script. Is it expected ?');

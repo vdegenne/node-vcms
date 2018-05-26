@@ -69,7 +69,7 @@ module.exports = (config) => {
 ```
 
 It is important that this file is called `startupconfig.js` here (or `startupconfig.ts` for typescript) because the framework will try to find this file in order to init the application.  \
-There is just few requirements, the script needs to return a function. This function has one argument `config` which represents the default configuration, and finally the function needs to return this `config` object or an object satisfying the `VcmsOptions` interface.  \
+There is just few requirements, the script needs to return a function. This function has one argument `config`, and finally the function needs to return this `config` object or an object satisfying the `VcmsOptions` interface.  \
 Here is an example using ESNext version to make it more clear :
 
 ```typescript
@@ -77,6 +77,9 @@ import {StartupFunction, VcmsOptions} from 'vcms';
 import {greetingsRouter} from './routers/greetings.router';
 
 export default async (config: VcmsOptions) => {
+
+  config.database = true;
+
   /**
    * config.node_env contains the current NODE_ENV if it was set
    * or is equal to 'prod' as a default
@@ -120,13 +123,14 @@ Think about the `startupconfig` script as a middleware we can use to rewrite mos
 ## Static Configuration
 
 One particularity of `vcms` is that it has a default state and this state can be customized almost entirely.  \
-In the previous section we saw how to configure the application dynamically (say the behavior defined with some code). There is also a static way that precedes the dynamic one. There is three ways of modifying the state statically :
+In the previous section we saw how to configure the application dynamically (say the behavior defined with some code). There is also a static way and there are three ways of modifying the state statically :
 
 * using a `.vcms.yml` configuration file.
+* [dynamically through the `startupconfig.js` file.]
 * using environment variables.
 * using command-line arguments.
 
-The precedence is performed in the order of the list above. For instance the command-line `--port` argument will override `port` property in the configuration file.
+The precedence is performed in the order of the list above. For instance the command-line `--port` argument will override `port` property in the configuration file, and a configuration overridden in `startupconfig.js` will override properties in the `.vcms.yml` file.
 
 ### Using command-line arguments
 
