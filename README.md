@@ -68,55 +68,67 @@ module.exports = (config) => {
 }
 ```
 
-It is important that this file is called `startupconfig.js` here (or `startupconfig.ts` for typescript) because the framework will try to find this file in order to init the application. It is also important that the `startupconfig.js` contains a `module.exports` with a function (the function can be `async`). This function is where we can dynamically configure our application, the `config` argument is a configuration object containing the defaults. The function needs to return the same object or a similar object satisfying the `VcmsOptions` interface. This is where we can derive the defaults with our own options. Also it is recommended to use typescript so we can take advantage of the interface and see the different options we can use.
+It is important that this file is called `startupconfig.js` here (or `startupconfig.ts` for typescript) because the framework will try to find this file in order to init the application.  \
+There is just few requirements, the script needs to return a function. This function has one argument `config` which represents the default configuration, and finally the function needs to return this `config` object or an object satisfying the `VcmsOptions` interface.  \
+Here is an example using ESNext version to make it more clear :
 
-(*note: The `startupconfig.js` file is the dynamic way to configure the application along with the `.vcms.yml`. See **Static Configuration** below for more details.*)
+```typescript
+import {StartupFunction, VcmsOptions} from 'vcms';
+import {greetingsRouter} from './routers/greetings.router';
 
-When we restart our application the routes `/greetings/hello` and `/greetings/bye` should be accessibles.
+export default async (config: VcmsOptions) => {
+  /**
+   * config.node_env contains the current NODE_ENV if it was set
+   * or is equal to 'prod' as a default
+   */
+  switch (config.node_env) {
+    case 'dev':
+      config.db_host = 'localhost:5432'; // shorthand
+      // config.db_host will be 'localhost'
+      // config.db_port will be 5432
+      break;
 
-*note: When the number of routers grow up, it's good practice to place them in a so called `routers` directory and then write the app like :*
-
-```javascript
-module.exports = (config) => {
-
-  config.routers: {
-      '/greetings': require('./routers/greetings.router'),
-      '/api/user': require('./routers/users.router'),
-      '/api/articles': require('./routers/articles.router')
+    case 'prod':
+      config.db_host = '1.2.3.4';
+      config.db_port = 5433;
+      break;
   }
 
+  // routers
+  config.routers = {
+    '/greetings': greetingsRouter
+  }
+
+  // http2 example
+  config.http2 = true;
+  config.http2_cert = process.cwd() + '/server.crt';
+  config.http2_key = process.cwd() + '/server.key';
+
+
   return config;
 }
 ```
 
+When we restart our application the routes `/greetings/hello` and `/greetings/bye` should be accessibles.  \
+Think about the `startupconfig` script as a middleware we can use to rewrite most of application internal configurations.
 
-### **startupconfig.js**
 
-Here are all the properties we can use to init the application :
+*The `startupconfig.js` file is the dynamic way to configure the application. Proceed reading the next chapter to see how to configure the application statically.*
 
-```javascript
-module.exports  = (config) => {
-  config.configFilepath: ...       // (string):      path to the static configuration file
-  config.initSessionFunction: ...  // (Function):    init the session object
-  config.middlewares: ...          // (Function[]):  middlewares
-  config.publicDirectory: ...      // (string):      public directory
-  config.routers: ...              // (Router[]):    the application's routers
 
-  return config;
-}
-```
 
 ## Static Configuration
 
 One particularity of `vcms` is that it has a default state and this state can be customized almost entirely.  \
-In the previous section we saw how to configure the application dynamically (say the behavior defined with some code). There is also a static way that offers more options. There is three ways of modifying the state statically :
+In the previous section we saw how to configure the application dynamically (say the behavior defined with some code). There is also a static way that precedes the dynamic one. There is three ways of modifying the state statically :
 
 * using environment variables.
 * using a `.vcms.yml` configuration file.
 * using command-line arguments.
 
 The precedence is performed in the order of the list above. For instance the command-line `--port` argument will override `port` property in the configuration file.
-Here are the possible options :
+
+### Using command-line arguments
 
 ```bash
 # Command-Line Arguments
@@ -129,6 +141,7 @@ node app.js --port/-p <number> \
                             --db-user <string>
                             --db-password <string> ] \
             --session/-s [ --redis-host <string> ] \
+            --session-cookie-domain <string> \
             --http2 [ --http2-key <string> \
                       --http2-cert <string> ]
 ```
@@ -136,6 +149,7 @@ node app.js --port/-p <number> \
 
 All properties are optionals. Between brackets are the properties that are specifics to the property before hand, for instance `--db-type` is only considered by the application if `--database` has been set.
 
+## Configuration options
 
 | Name                  | Type      | Possible values       | Default     | Description                                                                                                                                                                       |
 |-----------------------|-----------|-----------------------|-------------|-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|

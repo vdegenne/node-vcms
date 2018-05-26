@@ -26,17 +26,6 @@ export interface Structure {
 }
 
 
-
-export interface StartupConfig {
-  configFilepath?: string;
-  routers?: Routers;
-  initSessionFunction?: (session: Express.Session) => void;
-  middlewares?: RequestHandler[];
-  publics?: Public[];
-}
-
-
-
 export async function getStructure(config: VcmsOptions): Promise<Structure> {
   const structure:
       Structure = {server: null, database: null, Session: null, app: null};

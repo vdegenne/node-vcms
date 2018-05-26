@@ -24,6 +24,7 @@ suite('Database', async () => {
 
   setup(async () => {
     config = await getConfig([], null, defaultConfigFilepath);
+    config.
   });
 
   teardown(() => {
