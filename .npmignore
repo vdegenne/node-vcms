@@ -14,3 +14,4 @@ logo.png
 .travis.yml
 yarn-error.log
 yarn.lock
+TODO.md
