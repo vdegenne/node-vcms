@@ -1,9 +1,10 @@
 # ChangeLog
 
-## [26-05-2018] v1.7.0
+## [26-05-2018] v1.7.6
 
 * restructuration of `config.ts`.
 * Providing the `StartupFunction` type to use with the `startupconfig.js` file to configure the application dynamically.
+* `statics` instead of `publics` and add customizable `static` option.
 
 ## [25-05-2018] v1.6.0
 
