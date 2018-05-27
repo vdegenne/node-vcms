@@ -1,1 +1,2 @@
-- [ ] change routers type to include RequestHandler
+- [ ] Change routers type to include RequestHandler
+- [ ] Include `StartupFunction` in the ESNext example in the `README.md` (or remove it ?)
