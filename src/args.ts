@@ -15,6 +15,12 @@ const commandArgs: OptionDefinition[] = [
     type: String
   },
   {
+    name: 'static',
+    description:
+        'Path to a base directory that will be used to serve static files',
+    type: String
+  },
+  {
     name: 'http2',
     description: 'Enable or not http2 (default: false).',
     type: Boolean

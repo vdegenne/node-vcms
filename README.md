@@ -137,6 +137,7 @@ The precedence is performed in the order of the list above. For instance the com
 ```bash
 # Command-Line Arguments
 node app.js --port/-p <number> \
+            --static <string>  \
             --local-hostname/-h <string> \
             --database/-d [ --db-type <string> \
                             --db-host <string> \

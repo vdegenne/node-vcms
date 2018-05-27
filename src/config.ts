@@ -425,20 +425,38 @@ export async function getConfig(
         config);
   }
 
+
   /*=======================
-   =   publics            =
+   =   static             =
    =======================*/
   // 1. file
-  loadOption('publics', {file: {src: configFromFile, name: 'publics'}}, config);
+  loadOption('static', {file: {src: configFromFile, name: 'static'}}, config);
   // 2. startupconfig
-  transferProperty('publics', startupconfig, config);
+  transferProperty('static', startupconfig, config);
+  // 3. environment and command-line
+  loadOption(
+      'static',
+      {
+        env: {src: process.env, name: 'STATIC'},
+        cmdline: {src: configFromCommandLine, name: 'static'}
+      },
+      config);
+
+
+  /*=======================
+   =   statics            =
+   =======================*/
+  // 1. file
+  loadOption('statics', {file: {src: configFromFile, name: 'statics'}}, config);
+  // 2. startupconfig
+  transferProperty('statics', startupconfig, config);
   // we should convert the regexp routes
-  if (config.publics) {
-    for (const p of config.publics) {
-      p.route = <string>p.route;
-      if (typeof p.route !== 'object' && p.route !== '/' &&
-          p.route.startsWith('/\\/') && p.route.endsWith('/')) {
-        p.route = new RegExp(p.route.replace(/^\/|\/$/g, ''));
+  if (config.statics) {
+    for (const s of config.statics) {
+      s.route = <string>s.route;
+      if (typeof s.route !== 'object' && s.route !== '/' &&
+          s.route.startsWith('/\\/') && s.route.endsWith('/')) {
+        s.route = new RegExp(s.route.replace(/^\/|\/$/g, ''));
       }
     }
   }
@@ -452,7 +470,7 @@ export async function getConfig(
 }
 
 
-export type Public = {
+export type Static = {
   route: string|RegExp,
   serve: string
 }
@@ -483,7 +501,8 @@ export interface VcmsOptions {
   configFilepath?: string;
   routers?: Routers;
   initSessionFunction?: (session: Express.Session) => void;
-  publics?: Public[];
+  static?: string;
+  statics?: Static[];
   middlewares?: RequestHandler[];
 }
 
@@ -515,7 +534,8 @@ export interface ConfigFileOptionsBase {
   'redis-host'?: string;
   'session-cookie-domain'?: string;
 
-  'publics'?: Public[];
+  static?: string;
+  'statics'?: Static[];
 }
 
 export interface CommandLineOptions {
@@ -532,6 +552,8 @@ export interface CommandLineOptions {
   'db-user'?: string;
   'redis-host'?: string;
   'session-cookie-domain'?: string;
+
+  static?: string;
 }
 
 interface OptionSpecifier {

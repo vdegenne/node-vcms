@@ -82,15 +82,15 @@ suite('Config', () => {
     }
   });
 
-  test('publics is configurable from .vcms.yml file', async () => {
+  test('statics is configurable from .vcms.yml file', async () => {
     const config = await getConfig([], null, defaultConfigFilepath);
-    expect(config.publics[0]).to.deep.equal({route: '/', serve: 'public'});
+    expect(config.statics[0]).to.deep.equal({route: '/', serve: 'public'});
   });
 
-  test('RegExps in publics get converted', async () => {
+  test('RegExps in statics get converted', async () => {
     const config = await getConfig([], null, defaultConfigFilepath);
-    expect(config.publics[1].route).to.be.a('regexp');
-    expect(config.publics[1])
+    expect(config.statics[1].route).to.be.a('regexp');
+    expect(config.statics[1])
         .to.deep.equal({route: /\/test/, serve: 'public/test'});
   });
 });
@@ -102,15 +102,20 @@ suite('Config from script', () => {
     config = await getConfig([], defaultStartupScriptPath);
   });
 
-  test('publics is configurable from script and overrides static', async () => {
-    expect(config.publics).to.deep.equal([
+  test('statics is configurable from script and overrides static', async () => {
+    expect(config.statics).to.deep.equal([
       {route: /\/hello/, serve: 'test/app/public'},
       {route: '/statics', serve: 'test/app/public'}
     ]);
   });
 
-  test('[Typescript] configurable publics', async () => {
+  test('[Typescript] static', async () => {
     config = await getConfig([], __dirname + '/fixtures/startupconfig.js');
-    expect(config.publics).to.deep.equal([{route: /\/test/, serve: 'test'}]);
+    expect(config.static).to.equal('public');
+  });
+
+  test('[Typescript] statics', async () => {
+    config = await getConfig([], __dirname + '/fixtures/startupconfig.js');
+    expect(config.statics).to.deep.equal([{route: /\/test/, serve: 'test'}]);
   });
 });

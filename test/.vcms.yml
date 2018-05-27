@@ -7,7 +7,7 @@ db-password: password
 
 
 session: true
-publics:
+statics:
   - route: /
     serve: public
   - route: /\/test/

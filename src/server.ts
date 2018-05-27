@@ -1,13 +1,12 @@
-import {Application, RequestHandler} from 'express';
+import {Application} from 'express';
 import {existsSync, readFileSync} from 'fs';
 import {createServer} from 'http';
 import * as Knex from 'knex';
 import {Server} from 'net';
 import {createServer as createHttp2Server} from 'spdy';
 
-import {getApp, Routers} from './app';
-import {Public, VcmsOptions} from './config';
-import {getConfig} from './config';
+import {getApp} from './app';
+import {getConfig, VcmsOptions} from './config';
 import {getDatabase} from './database';
 import {Logger} from './logging';
 import {getSession} from './redis-session';

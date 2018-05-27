@@ -2,9 +2,9 @@ import * as compression from 'compression';
 import * as express from 'express';
 import {Router} from 'express';
 
-import {getConfig, VcmsOptions} from '../config';
+import {VcmsOptions} from '../config';
 import {Logger} from '../logging';
-import {getSession, Session} from '../redis-session';
+import {Session} from '../redis-session';
 
 const logger = new Logger('app');
 
@@ -56,18 +56,24 @@ export async function getApp(
     }
   }
 
+  // static (singular)
+  if (config.static) {
+    logger.log(`Registering static directory : "/" => "${config.static}"`);
+    app.use(express.static(process.cwd() + '/' + config.static));
+  }
+
+  // statics (plural)
+  if (config.statics && Object.keys(config.statics).length) {
+    for (const s of config.statics) {
+      logger.log(`Registering static directory : "${s.route}" => "${s.serve}"`);
+      app.use(s.route, express.static(process.cwd() + '/' + s.serve));
+    }
+  }
+
   // routers
   for (const base in config.routers) {
     logger.log(`Providing route "${base}"`);
     app.use(base, config.routers[base]);
-  }
-
-  // publics
-  if (config.publics && Object.keys(config.publics).length) {
-    for (const p of config.publics) {
-      logger.log(`Using public directory : "${p.route}" => "${p.serve}"`);
-      app.use(p.route, express.static(process.cwd() + '/' + p.serve));
-    }
   }
 
   return app;

@@ -15,7 +15,7 @@ exports.default = async (config) => {
   //   next();
   // }];
 
-  config.publics = [
+  config.statics = [
     {route: /\/hello/, serve: 'test/app/public'},
     {route: '/statics', serve: 'test/app/public'}
   ];
