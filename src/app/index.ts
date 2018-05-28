@@ -9,10 +9,6 @@ import {Session} from '../redis-session';
 const logger = new Logger('app');
 
 
-export type Routers = {
-  [base: string]: Router
-};
-
 
 export async function getApp(
     config: VcmsOptions, session?: Session): Promise<express.Application> {

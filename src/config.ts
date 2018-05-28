@@ -1,5 +1,6 @@
 import * as commandLineArgs from 'command-line-args';
-import {RequestHandler} from 'express';
+import {RequestHandler, Router} from 'express';
+import {RequestHandlerParams} from 'express-serve-static-core';
 import {existsSync, readFileSync} from 'fs';
 import {safeLoad} from 'js-yaml';
 
@@ -501,7 +502,7 @@ export interface VcmsOptions {
   session_cookie_domain?: string;
 
   configFilepath?: string;
-  routers?: Routers|RequestHandler;
+  routers?: {[base: string]: Router|RequestHandler};
   initSessionFunction?: (session: Express.Session) => void;
   static?: string;
   statics?: Static[];
