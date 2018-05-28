@@ -76,7 +76,7 @@ Here is an example using ESNext version to make it more clear :
 import {StartupFunction, VcmsOptions} from 'vcms';
 import {greetingsRouter} from './routers/greetings.router';
 
-export default async (config: VcmsOptions) => {
+const startup: StartupFunction = async (config: VcmsOptions) => {
 
   config.database = true;
 
@@ -110,6 +110,8 @@ export default async (config: VcmsOptions) => {
 
   return config;
 }
+
+export default startup;
 ```
 
 When we restart our application the routes `/greetings/hello` and `/greetings/bye` should be accessibles.  \

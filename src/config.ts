@@ -80,7 +80,9 @@ export async function getConfig(
 
       startupconfig = await startupfunction({node_env: config.node_env});
       // node_env can be overridden
-      config.node_env = startupconfig.node_env;
+      if (startupconfig.node_env) {
+        config.node_env = startupconfig.node_env;
+      }
 
     } else {
       throwError(`Startup configuration script "${
@@ -499,7 +501,7 @@ export interface VcmsOptions {
   session_cookie_domain?: string;
 
   configFilepath?: string;
-  routers?: Routers;
+  routers?: Routers|RequestHandler;
   initSessionFunction?: (session: Express.Session) => void;
   static?: string;
   statics?: Static[];
