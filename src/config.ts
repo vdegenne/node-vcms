@@ -4,7 +4,6 @@ import {RequestHandlerParams} from 'express-serve-static-core';
 import {existsSync, readFileSync} from 'fs';
 import {safeLoad} from 'js-yaml';
 
-import {Routers} from './app';
 import commandArgs from './args';
 import {Logger} from './logging';
 
