@@ -22,6 +22,7 @@ export interface Structure {
   database: Knex;
   Session: Session;
   app: Application;
+  config?: VcmsOptions;
 }
 
 
@@ -50,6 +51,8 @@ export async function getStructure(config: VcmsOptions): Promise<Structure> {
   // server
   structure.server = await getServer(config, structure.app);
 
+  // reference to the config object as a helper
+  structure.config = config;
 
   return structure;
 }

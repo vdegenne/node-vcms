@@ -1,5 +1,13 @@
 # ChangeLog
 
+## [04-06-2018] v1.8.1
+
+* Add the `config` helper property to the `Structure` interface.
+
+## [03-06-2018] v1.8.0
+
+* Add the routers `util.ts` file first version.
+
 ## [26-05-2018] v1.7.8
 
 * restructuration of `config.ts`.
