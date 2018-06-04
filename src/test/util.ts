@@ -37,11 +37,7 @@ export async function getConfig(
 
 
 export async function resetDatabase(database: Knex, scripts: string[]) {
-  const sql =
-      scripts
-          .map(f => readFileSync(`${__dirname}/../../sql/${f}.sql`).toString())
-          .join(';');
-
+  const sql = scripts.map(f => readFileSync(f).toString()).join(';');
   await database.raw(sql);
 }
 
