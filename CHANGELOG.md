@@ -1,6 +1,6 @@
 # ChangeLog
 
-## [04-06-2018] v1.8.2
+## [04-06-2018] v1.8.3
 
 * Add the `config` helper property to the `Structure` interface.
 * Add `Role` and `User` helper models to the framework.
