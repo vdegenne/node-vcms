@@ -1,8 +1,13 @@
-import {getConfig as _getConfig, VcmsOptions} from '../config';
+import {readFileSync} from 'fs';
+import * as Knex from 'knex';
 
+import {getConfig as _getConfig, VcmsOptions} from '../config';
+import Role from '../models/Role';
+import {destroyStructure, getStructure, Structure} from '../server';
 
 export async function getConfig(
-    args: string[] = [], startupConfigPath: string = null,
+    args: string[] = [],
+    startupConfigPath: string = null,
     vcmsFilepath: string = null): Promise<VcmsOptions> {
   /* save the context */
   const originalArgv = process.argv;
@@ -27,4 +32,59 @@ export async function getConfig(
   }
 
   return config;
+}
+
+
+
+export async function resetDatabase(database: Knex, scripts: string[]) {
+  const sql =
+      scripts
+          .map(f => readFileSync(`${__dirname}/../../sql/${f}.sql`).toString())
+          .join(';');
+
+  await database.raw(sql);
+}
+
+
+export async function accessAsGuest(struct: Structure) {
+  struct.config.middlewares = [(req, res, next) => {
+    req.session.user.logged = false;
+    req.session.user.roles = [new Role('GUEST')];
+    next();
+  }];
+
+  // closing connections before making a new structure
+  await destroyStructure(struct);
+  struct = await getStructure(struct.config);
+  return struct;
+}
+
+
+export async function accessAsUser(id: number = 1, struct: Structure) {
+  struct.config.middlewares = [(req, res, next) => {
+    req.session.user.logged = true;
+    req.session.user.roles = [new Role('USER')];
+    req.session.user.id = id;
+    next();
+  }];
+
+  // closing connections before making a new structure
+  await destroyStructure(struct);
+  struct = await getStructure(struct.config);
+  return struct;
+}
+
+
+export async function accessAsAdmin(struct: Structure) {
+  struct.config.middlewares = [(req, res, next) => {
+    req.session.user.logged = true;
+    req.session.user.roles = [new Role('USER'), new Role('ADMIN')];
+    req.session.user.id = 1414;  // fake id
+    next();
+  }];
+
+  // closing connections before making a new structure
+  await destroyStructure(struct);
+  struct = await getStructure(struct.config);
+  return struct;
 }

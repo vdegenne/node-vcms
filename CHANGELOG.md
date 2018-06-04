@@ -1,8 +1,10 @@
 # ChangeLog
 
-## [04-06-2018] v1.8.1
+## [04-06-2018] v1.8.2
 
 * Add the `config` helper property to the `Structure` interface.
+* Add `Role` and `User` helper models to the framework.
+* Add the `resetDatabase` and access-as helper testing functions.
 
 ## [03-06-2018] v1.8.0
 
