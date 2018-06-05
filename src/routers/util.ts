@@ -8,7 +8,7 @@ export function validateBody(
   if ('body' in object) {
     object = {...object.body};
   }
-  return validateParams(object, validation);
+  return validateParams(object, validation, atLeast);
 }
 
 
