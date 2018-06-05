@@ -1,5 +1,9 @@
 # ChangeLog
 
+## [05-06-2018] v1.8.4
+
+* Add the `atLeast` option in `validateBody`, `validateParams` helpers.
+
 ## [04-06-2018] v1.8.3
 
 * Add the `config` helper property to the `Structure` interface.

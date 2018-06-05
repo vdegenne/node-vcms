@@ -3,7 +3,8 @@ export type Validation = {
   [param: string]: string|string[]
 };
 
-export function validateBody(object: any, validation: Validation) {
+export function validateBody(
+    object: any, validation: Validation, atLeast: number = undefined) {
   if ('body' in object) {
     object = {...object.body};
   }
@@ -12,7 +13,9 @@ export function validateBody(object: any, validation: Validation) {
 
 
 
-export function validateParams(object: any, validation: Validation): any|null {
+export function validateParams(
+    object: any, validation: Validation, atLeast: number = undefined): any|
+    null {
   let params = {};
 
   if ('params' in object) {
@@ -45,7 +48,8 @@ export function validateParams(object: any, validation: Validation): any|null {
     // for every type
     for (const t of validation[p]) {
       // if valid we pass all other validation
-      if (valid) continue;
+      if (valid)
+        continue;
 
       let typeDetails: any = {type: t};
 
@@ -117,7 +121,14 @@ export function validateParams(object: any, validation: Validation): any|null {
     }
 
     // if no validation type were satisfied (fail)
-    if (!valid) return null;
+    if (!valid)
+      return null;
+  }
+
+  if (atLeast) {
+    if (Object.keys(params).length < atLeast) {
+      return null;
+    }
   }
 
   return params;
