@@ -1,21 +1,21 @@
 import * as compression from 'compression';
 import * as express from 'express';
-import {Router} from 'express';
+import { Router } from 'express';
 
-import {VcmsOptions} from '../config';
-import {Logger} from '../logging';
-import {Session} from '../redis-session';
+import { VcmsOptions } from '../config';
+import { Logger } from '../logging';
+import { Session } from '../redis-session';
 
 const logger = new Logger('app');
 
 
 
 export async function getApp(
-    config: VcmsOptions, session?: Session): Promise<express.Application> {
+  config: VcmsOptions, session?: Session): Promise<express.Application> {
   const app = express();
 
   app.use(express.json());
-  app.use(express.urlencoded({extended: true}));
+  app.use(express.urlencoded({ extended: true }));
 
   app.use(compression());
 
@@ -52,6 +52,12 @@ export async function getApp(
     }
   }
 
+  // routers
+  for (const base in config.routers) {
+    logger.log(`Providing route "${base}"`);
+    app.use(base, config.routers[base]);
+  }
+
   // static (singular)
   if (config.static) {
     logger.log(`Registering static directory : "/" => "${config.static}"`);
@@ -66,15 +72,9 @@ export async function getApp(
     }
   }
 
-  // routers
-  for (const base in config.routers) {
-    logger.log(`Providing route "${base}"`);
-    app.use(base, config.routers[base]);
-  }
-
   return app;
 }
 
 
 // make Router available in the vcms namespace
-export {Router};
+export { Router };
