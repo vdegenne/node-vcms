@@ -1,5 +1,9 @@
 # ChangeLog
 
+## [08-11-2018] v1.9.1
+
+* setDisplay logger for config module
+
 ## [05-06-2018] v1.8.5
 
 * Add the `atLeast` option in `validateBody`, `validateParams` helpers.
