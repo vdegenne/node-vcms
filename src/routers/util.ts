@@ -1,12 +1,12 @@
 
 export type Validation = {
-  [param: string]: string|string[]
+  [param: string]: string | string[]
 };
 
 export function validateBody(
-    object: any, validation: Validation, atLeast: number = undefined) {
+  object: any, validation: Validation, atLeast: number = undefined) {
   if ('body' in object) {
-    object = {...object.body};
+    object = { ...object.body };
   }
   return validateParams(object, validation, atLeast);
 }
@@ -14,12 +14,12 @@ export function validateBody(
 
 
 export function validateParams(
-    object: any, validation: Validation, atLeast: number = undefined): any|
-    null {
+  object: any, validation: Validation, atLeast: number = undefined): any |
+  null {
   let params = {};
 
   if ('params' in object) {
-    object = {...object.params};
+    object = { ...object.params };
   }
 
   // no object found
@@ -51,7 +51,7 @@ export function validateParams(
       if (valid)
         continue;
 
-      let typeDetails: any = {type: t};
+      let typeDetails: any = { type: t };
 
       // details the string type ?
       if (typeDetails.type !== 'string') {
@@ -79,6 +79,13 @@ export function validateParams(
             break;
           }
           break;
+        case 'float':
+          // is the string representing a float number ?
+          valid = (parseFloat(object[p]).toString() === object[p]);
+          if (valid) {
+            params[p] = parseFloat(object[p]);
+          }
+          break;
         case 'boolean':
           valid = (typeof object[p] === 'boolean');
           if (valid) {
@@ -87,8 +94,8 @@ export function validateParams(
           }
           // against the string
           valid =
-              (object[p] &&
-               (object[p].toLowerCase() === 'true' ||
+            (object[p] &&
+              (object[p].toLowerCase() === 'true' ||
                 object[p].toLowerCase() === 'false'));
           if (valid) {
             params[p] = object[p].toLowerCase();
@@ -145,7 +152,7 @@ export interface ErrorDetails {
 }
 
 export function getErrorDetails(
-    error: any, customErrorMessages: {[code: string]: string} = {}) {
+  error: any, customErrorMessages: { [code: string]: string } = {}) {
   let details: ErrorDetails = {
     message: 'none',
     httpStatus: 200
@@ -169,11 +176,11 @@ export function getErrorDetails(
         break;
       case '23505':
         details.message =
-            customErrorMessages['23505'] || 'The object already exist.';
+          customErrorMessages['23505'] || 'The object already exist.';
         break;
       case '23502':
         details.message = customErrorMessages['23502'] ||
-            'Trying to delete but some data depends on it.';
+          'Trying to delete but some data depends on it.';
         break;
       default:
         details.message = customErrorMessages[error.code] || null;
