@@ -1,7 +1,7 @@
-import {OptionDefinition} from 'command-line-args';
+import { ArgDescriptor } from 'command-line-args';
 
 // possible arguments
-const commandArgs: OptionDefinition[] = [
+const commandArgs: ArgDescriptor[] = [
   {
     name: 'port',
     alias: 'p',
@@ -17,7 +17,7 @@ const commandArgs: OptionDefinition[] = [
   {
     name: 'static',
     description:
-        'Path to a base directory that will be used to serve static files',
+      'Path to a base directory that will be used to serve static files',
     type: String
   },
   {
@@ -61,12 +61,12 @@ const commandArgs: OptionDefinition[] = [
     description: 'Name of the databse to connect to',
     type: String
   },
-  {name: 'db-user', description: 'The name of the database user', type: String},
+  { name: 'db-user', description: 'The name of the database user', type: String },
   {
     name: 'enable-session',
     alias: 's',
     description:
-        'Enable the session module (use this if authentication is required)',
+      'Enable the session module (use this if authentication is required)',
     type: Boolean
   },
   {
@@ -77,7 +77,7 @@ const commandArgs: OptionDefinition[] = [
   {
     name: 'session-cookie-domain',
     description:
-        'Domain of the Session cookie (e.g. ".example.com"). That option lets you exchange session data between application in the same domain scope',
+      'Domain of the Session cookie (e.g. ".example.com"). That option lets you exchange session data between application in the same domain scope',
     type: String
   }
 ];

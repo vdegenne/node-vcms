@@ -80,7 +80,11 @@ export function validateParams(
           }
           break;
         case 'float':
-          // is the string representing a float number ?
+          valid = (typeof object[p] === 'number');
+          if (valid) {
+            params[p] = object[p];
+            break;
+          }
           valid = (parseFloat(object[p]).toString() === object[p]);
           if (valid) {
             params[p] = parseFloat(object[p]);

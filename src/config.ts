@@ -1,6 +1,6 @@
+import { ArgDescriptor } from 'command-line-args';
 import * as commandLineArgs from 'command-line-args';
 import { RequestHandler, Router } from 'express';
-import { RequestHandlerParams } from 'express-serve-static-core';
 import { existsSync, readFileSync } from 'fs';
 import { safeLoad } from 'js-yaml';
 
@@ -33,7 +33,6 @@ export const defaultOptions: VcmsOptions = {
   session_required: false,
   redis_host: 'localhost:6379'
 };
-
 
 
 export async function getConfig(
@@ -128,8 +127,7 @@ export async function getConfig(
 
 
   /* check for command-line options */
-  const configFromCommandLine: CommandLineOptions =
-    commandLineArgs(commandArgs);
+  const configFromCommandLine: ArgDescriptor = commandLineArgs(commandArgs);
 
 
   /*===========
@@ -562,7 +560,7 @@ export interface CommandLineOptions {
 
 interface OptionSpecifier {
   name: string;
-  src?: ConfigFileOptions | CommandLineOptions;
+  src?: any | ConfigFileOptions | CommandLineOptions;
   type?: string
 }
 
