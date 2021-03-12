@@ -1,6 +1,6 @@
 {
   "name": "vcms",
-  "version": "1.9.2",
+  "version": "1.9.5",
   "description": "a tiny node cms (express, objection, express-session/redis, and more)",
   "author": "Valentin Degenne <vdegenne@gmail.com>",
   "repository": "vdegenne/node-vcms",
@@ -46,7 +46,7 @@
     "mocha": "^5.2.0",
     "morgan": "^1.9.1",
     "objection": "^1.4.0",
-    "pg": "^7.6.1",
+    "pg": "^8.5.1",
     "readline-sync": "^1.4.9",
     "redis": "^2.8.0",
     "req-control": "^0.0.1",
