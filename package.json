@@ -48,7 +48,7 @@
     "objection": "^1.4.0",
     "pg": "^8.5.1",
     "readline-sync": "^1.4.9",
-    "redis": "^2.8.0",
+    "redis": "^3.1.1",
     "req-control": "^0.0.1",
     "rimraf": "^2.6.2",
     "source-map-support": "^0.5.9",
